@@ -7,6 +7,7 @@ public class GameManager : MonoBehaviour
 
     public int maxRounds = 15;
     public int currentRound = 1;
+    public int stepsPerTurn = 1;
 
     private int policeTeamCount = 3;
     private int currentTeamTurnIndex = 0;
@@ -26,7 +27,6 @@ public class GameManager : MonoBehaviour
 
     void InitializeTeams()
     {
-        // 這裡為測試資料，實際情況應由 Lobby 或設定傳入
         policeTeams = new List<List<PlayerData>>()
         {
             new List<PlayerData>(),
@@ -34,12 +34,11 @@ public class GameManager : MonoBehaviour
             new List<PlayerData>()
         };
 
-        // 依照設定加入測試玩家
-        for (int i = 0; i < 10; i++) AddPlayer(new PlayerData("警察" + i, PlayerRole.Police, 0));
-        AddPlayer(new PlayerData("貪污1", PlayerRole.CorruptPolice, 1));
-        AddPlayer(new PlayerData("貪污2", PlayerRole.CorruptPolice, 2));
-        AddThief(new PlayerData("小偷1", PlayerRole.Thief, -1));
-        AddThief(new PlayerData("小偷2", PlayerRole.Thief, -1));
+        for (int i = 0; i < 10; i++) AddPlayer(new PlayerData($"p{i}", PlayerRole.Police, 0));
+        AddPlayer(new PlayerData("g1", PlayerRole.CorruptPolice, 1));
+        AddPlayer(new PlayerData("g2", PlayerRole.CorruptPolice, 2));
+        AddThief(new PlayerData("t1", PlayerRole.Thief, -1));
+        AddThief(new PlayerData("t2", PlayerRole.Thief, -1));
 
         BeginTurn();
     }
@@ -58,7 +57,7 @@ public class GameManager : MonoBehaviour
 
     void BeginTurn()
     {
-        Debug.Log($"第 {currentRound} 回合開始");
+        Debug.Log($"Round {currentRound} start");
         currentTeamTurnIndex = (currentRound - 1) % policeTeamCount;
         currentPlayerIndex = 0;
         NextPlayerTurn();
@@ -68,7 +67,9 @@ public class GameManager : MonoBehaviour
     {
         if (currentPlayerIndex < policeTeams[currentTeamTurnIndex].Count)
         {
-            PlayerInputController.Instance.SetCurrentPlayer(policeTeams[currentTeamTurnIndex][currentPlayerIndex]);
+            var player = policeTeams[currentTeamTurnIndex][currentPlayerIndex];
+            player.remainingSteps = stepsPerTurn;
+            PlayerInputController.Instance.SetCurrentPlayer(player);
             currentPlayerIndex++;
         }
         else
@@ -88,12 +89,12 @@ public class GameManager : MonoBehaviour
 
     void EndRound()
     {
-        Debug.Log($"第 {currentRound} 回合結束");
+        Debug.Log($"Round {currentRound} end");
 
         currentRound++;
         if (currentRound > maxRounds)
         {
-            Debug.Log("遊戲結束");
+            Debug.Log("Game over");
             return;
         }
         BeginTurn();

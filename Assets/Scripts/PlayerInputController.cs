@@ -33,6 +33,8 @@ public class PlayerInputController : MonoBehaviour
     public void SetCurrentPlayer(PlayerData player)
     {
         currentPlayer = player;
+        if (GameManager.Instance != null)
+            currentPlayer.remainingSteps = GameManager.Instance.stepsPerTurn;
         originalNodeId = player.currentNodeId;
         selectedNodeId = -1;
         HighlightCurrentNode();
@@ -53,7 +55,7 @@ public class PlayerInputController : MonoBehaviour
 
         if (!MapManager.Instance.AreNodesConnected(currentPlayer.currentNodeId, nodeId))
         {
-            Debug.Log("請選擇相鄰站點");
+            Debug.Log("Nodes are not connected.");
             return;
         }
 
@@ -88,24 +90,24 @@ public class PlayerInputController : MonoBehaviour
         currentPlayer.currentNodeId = selectedNodeId;
         currentPlayer.remainingSteps--;
 
-        string result = "";
+        string result = string.Empty;
         bool isShared = true;
 
         if (currentAction == ActionType.Move && currentPlayer.role == PlayerRole.Thief)
         {
             MapManager.Instance.AddFootprint(selectedNodeId, currentPlayer.playerName);
-            result = MapManager.Instance.HasTreasure(selectedNodeId) ? "獲得寶物" : "移動成功";
+            result = MapManager.Instance.HasTreasure(selectedNodeId) ? "Found treasure" : "No treasure";
         }
         else if (currentAction == ActionType.Investigate && currentPlayer.role != PlayerRole.Thief)
         {
             var hasClue = MapManager.Instance.HasFootprint(selectedNodeId);
-            result = hasClue ? "有小偷線索" : "無線索";
+            result = hasClue ? "Found clue" : "No clue";
             isShared = false;
         }
         else if (currentAction == ActionType.Arrest && currentPlayer.role != PlayerRole.Thief)
         {
             var thief = GameManager.Instance.GetThiefAt(selectedNodeId);
-            result = thief != null ? $"逮捕成功 ({thief.playerName})" : "逮捕失敗";
+            result = thief != null ? $"Arrested ({thief.playerName})" : "No thief";
             isShared = true;
         }
 
