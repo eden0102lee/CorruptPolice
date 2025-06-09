@@ -9,7 +9,14 @@ public class GameManager : MonoBehaviour
     public int currentRound = 1;
     public int stepsPerTurn = 1;
 
-    private int policeTeamCount = 3;
+    [Header("Team Configuration")]
+    [Tooltip("How many police teams participate in the game")] 
+    public int policeTeamCount = 3;
+
+    [Header("Player Counts")]
+    [Tooltip("Number of regular police players")] public int regularPoliceCount = 8;
+    [Tooltip("Number of corrupt police players")] public int corruptPoliceCount = 2;
+    [Tooltip("Number of thief players")] public int thiefCount = 2;
     private int currentTeamTurnIndex = 0;
     private int currentPlayerIndex = 0;
 
@@ -27,18 +34,29 @@ public class GameManager : MonoBehaviour
 
     void InitializeTeams()
     {
-        policeTeams = new List<List<PlayerData>>()
-        {
-            new List<PlayerData>(),
-            new List<PlayerData>(),
-            new List<PlayerData>()
-        };
+        policeTeams = new List<List<PlayerData>>();
+        for (int i = 0; i < policeTeamCount; i++)
+            policeTeams.Add(new List<PlayerData>());
 
-        for (int i = 0; i < 10; i++) AddPlayer(new PlayerData($"p{i}", PlayerRole.Police, 0));
-        AddPlayer(new PlayerData("g1", PlayerRole.CorruptPolice, 1));
-        AddPlayer(new PlayerData("g2", PlayerRole.CorruptPolice, 2));
-        AddThief(new PlayerData("t1", PlayerRole.Thief, -1));
-        AddThief(new PlayerData("t2", PlayerRole.Thief, -1));
+        // Create regular police players and distribute them across teams
+        for (int i = 0; i < regularPoliceCount; i++)
+        {
+            int teamIndex = i % policeTeamCount;
+            AddPlayer(new PlayerData($"p{i}", PlayerRole.Police, teamIndex));
+        }
+
+        // Create corrupt police players
+        for (int i = 0; i < corruptPoliceCount; i++)
+        {
+            int teamIndex = i % policeTeamCount;
+            AddPlayer(new PlayerData($"c{i}", PlayerRole.CorruptPolice, teamIndex));
+        }
+
+        // Create thief players
+        for (int i = 0; i < thiefCount; i++)
+        {
+            AddThief(new PlayerData($"t{i}", PlayerRole.Thief, -1));
+        }
 
         BeginTurn();
     }
