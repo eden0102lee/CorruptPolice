@@ -17,6 +17,8 @@ public class PlayerInputController : MonoBehaviour
     private int selectedNodeId = -1;
     private int originalNodeId = -1;
 
+    private bool placementMode = false;
+
     private ActionType currentAction;
 
     void Awake()
@@ -40,6 +42,15 @@ public class PlayerInputController : MonoBehaviour
         HighlightCurrentNode();
     }
 
+    public void StartPlacement(PlayerData player)
+    {
+        placementMode = true;
+        currentPlayer = player;
+        selectedNodeId = -1;
+        originalNodeId = -1;
+        Debug.Log($"Select start position for {player.playerName}");
+    }
+
     void HighlightCurrentNode()
     {
         foreach (var ui in MapManager.Instance.GetAllNodeUIs())
@@ -51,6 +62,16 @@ public class PlayerInputController : MonoBehaviour
 
     public void OnNodeClicked(int nodeId)
     {
+        if (placementMode)
+        {
+            if (currentPlayer == null) return;
+            currentPlayer.currentNodeId = nodeId;
+            MapManager.Instance.GetNodeUI(nodeId)?.Highlight();
+            placementMode = false;
+            GameManager.Instance.ConfirmPlacement();
+            return;
+        }
+
         if (currentPlayer == null || currentPlayer.remainingSteps <= 0) return;
 
         if (!MapManager.Instance.AreNodesConnected(currentPlayer.currentNodeId, nodeId))
