@@ -36,8 +36,8 @@ public class ActionLogger : MonoBehaviour
     public void Log(PlayerData player, int round, int nodeId, string actionName, string result, bool isShared)
     {
         ActionType action = ActionType.Move;
-        if (actionName == "調查") action = ActionType.Investigate;
-        else if (actionName == "逮捕") action = ActionType.Arrest;
+        if (actionName == "Investigate") action = ActionType.Investigate;
+        else if (actionName == "Arrest") action = ActionType.Arrest;
 
         ActionRecord record = new ActionRecord
         {
@@ -51,7 +51,7 @@ public class ActionLogger : MonoBehaviour
         };
 
         records.Add(record);
-        Debug.Log($"[紀錄] {record.playerName} ({record.role}) - 回合 {record.round} - 節點 {record.nodeId} - {record.action} - 結果: {record.result} - 分享: {record.isShared}");
+        Debug.Log($"[Log] {record.playerName} ({record.role}) - Round {record.round} - Node {record.nodeId} - {record.action} - Result: {record.result} - Shared: {record.isShared}");
     }
 
     public List<ActionRecord> GetRecords()
