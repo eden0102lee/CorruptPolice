@@ -43,6 +43,13 @@ public class MapManager : MonoBehaviour
         }
 
         MapData mapData = JsonUtility.FromJson<MapData>(mapJsonFile.text);
+        // shift IDs so numbering starts at 1
+        foreach (var node in mapData.nodes)
+        {
+            node.id += 1;
+            for (int i = 0; i < node.neighbors.Count; i++)
+                node.neighbors[i] += 1;
+        }
         nodeDataDict.Clear();
         nodeGameObjects.Clear();
         nodeUIs.Clear();
@@ -62,7 +69,8 @@ public class MapManager : MonoBehaviour
             rect.anchoredPosition = new Vector2(node.x, node.y);
 
             NodeUI ui = go.GetComponent<NodeUI>();
-            ui.nodeId = node.id;
+            if (ui != null)
+                ui.SetId(node.id);
 
             nodeGameObjects[node.id] = go;
             nodeUIs[node.id] = ui;
@@ -116,5 +124,24 @@ public class MapManager : MonoBehaviour
     public bool HasFootprint(int nodeId)
     {
         return footprints.ContainsKey(nodeId) && footprints[nodeId].Count > 0;
+    }
+
+    void OnDrawGizmos()
+    {
+        if (nodeDataDict == null || nodeDataDict.Count == 0) return;
+
+        Gizmos.color = Color.cyan;
+        foreach (var node in nodeDataDict.Values)
+        {
+            if (!nodeGameObjects.ContainsKey(node.id)) continue;
+            Vector3 a = nodeGameObjects[node.id].GetComponent<RectTransform>().position;
+            foreach (var neigh in node.neighbors)
+            {
+                if (neigh <= node.id) continue;
+                if (!nodeGameObjects.ContainsKey(neigh)) continue;
+                Vector3 b = nodeGameObjects[neigh].GetComponent<RectTransform>().position;
+                Gizmos.DrawLine(a, b);
+            }
+        }
     }
 }
