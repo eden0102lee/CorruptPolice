@@ -117,7 +117,7 @@ public class GameManager : MonoBehaviour
         PromptPlacement();
     }
 
-    void BeginTurn()
+    public void BeginTurn()
     {
         Debug.Log($"Round {currentRound} start");
         currentTeamTurnIndex = (currentRound - 1) % policeTeamCount;
@@ -185,4 +185,21 @@ public class GameManager : MonoBehaviour
     public List<PlayerData> GetAllPlayers() => allPlayers;
     public List<PlayerData> GetThieves() => thiefPlayers;
     public List<List<PlayerData>> GetPoliceTeams() => policeTeams;
+
+    public void RegisterPolice(PlayerData player)
+    {
+        if (!policeTeams[player.teamIndex].Contains(player))
+            policeTeams[player.teamIndex].Add(player);
+        if (!allPlayers.Contains(player))
+            allPlayers.Add(player);
+    }
+
+    public void RegisterThief(PlayerData player)
+    {
+        if (!thiefPlayers.Contains(player))
+            thiefPlayers.Add(player);
+        if (!allPlayers.Contains(player))
+            allPlayers.Add(player);
+    }
+
 }
