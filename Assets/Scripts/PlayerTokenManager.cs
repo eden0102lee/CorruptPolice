@@ -31,6 +31,10 @@ public class PlayerTokenManager : MonoBehaviour
 
         GameObject token = Instantiate(tokenPrefab, tokenParent);
         tokens[player] = token;
+        var tokenComponent = token.GetComponent<PlayerToken>();
+        if (tokenComponent == null)
+            tokenComponent = token.AddComponent<PlayerToken>();
+        tokenComponent.player = player;
         UpdateTokenPosition(player);
     }
 
@@ -46,7 +50,11 @@ public class PlayerTokenManager : MonoBehaviour
         if (nodeObj == null) return;
 
         RectTransform tokenRect = token.GetComponent<RectTransform>();
-        tokenRect.SetParent(nodeObj.transform, false);
-        tokenRect.anchoredPosition = Vector2.zero;
+        RectTransform nodeRect = nodeObj.GetComponent<RectTransform>();
+        if (nodeRect != null)
+        {
+            tokenRect.SetParent(tokenParent, false);
+            tokenRect.position = nodeRect.position;
+        }
     }
 }
