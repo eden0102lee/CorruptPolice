@@ -4,6 +4,7 @@ using TMPro;
 
 public class PlayerUI : MonoBehaviour
 {
+    public PlayerData player;
     public Image tokenImage;
     public TMP_Text numberText;
 
