@@ -1,6 +1,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+public enum GamePhase
+{
+    Placement,
+    Playing
+}
+
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
@@ -8,6 +14,11 @@ public class GameManager : MonoBehaviour
     public int maxRounds = 15;
     public int currentRound = 1;
     public int stepsPerTurn = 1;
+
+    public GamePhase CurrentPhase { get; private set; } = GamePhase.Placement;
+
+    private List<PlayerData> placementOrder = new List<PlayerData>();
+    private int placementIndex = 0;
 
     [Header("Team Configuration")]
     [Tooltip("How many police teams participate in the game")] 
@@ -30,6 +41,8 @@ public class GameManager : MonoBehaviour
     {
         Instance = this;
         InitializeTeams();
+        if (PlayerInputController.Instance != null)
+            BeginPlacement();
     }
 
     void InitializeTeams()
@@ -58,7 +71,6 @@ public class GameManager : MonoBehaviour
             AddThief(new PlayerData($"t{i}", PlayerRole.Thief, -1));
         }
 
-        BeginTurn();
     }
 
     void AddPlayer(PlayerData player)
@@ -71,6 +83,38 @@ public class GameManager : MonoBehaviour
     {
         thiefPlayers.Add(thief);
         allPlayers.Add(thief);
+    }
+
+    void BeginPlacement()
+    {
+        CurrentPhase = GamePhase.Placement;
+        placementOrder.Clear();
+        for (int i = 0; i < policeTeamCount; i++)
+        {
+            placementOrder.AddRange(policeTeams[i]);
+        }
+        placementOrder.AddRange(thiefPlayers);
+        placementIndex = 0;
+        PromptPlacement();
+    }
+
+    void PromptPlacement()
+    {
+        if (placementIndex >= placementOrder.Count)
+        {
+            CurrentPhase = GamePhase.Playing;
+            BeginTurn();
+            return;
+        }
+
+        var player = placementOrder[placementIndex];
+        PlayerInputController.Instance.StartPlacement(player);
+    }
+
+    public void ConfirmPlacement()
+    {
+        placementIndex++;
+        PromptPlacement();
     }
 
     void BeginTurn()
