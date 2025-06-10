@@ -32,6 +32,10 @@ public class MapManager : MonoBehaviour
     void Start()
     {
         LoadAndBuildMap();
+        if (PlayerTokenManager.Instance != null && GameManager.Instance != null)
+        {
+            PlayerTokenManager.Instance.CreateTokens(GameManager.Instance.GetAllPlayers());
+        }
     }
 
     public void LoadAndBuildMap()
