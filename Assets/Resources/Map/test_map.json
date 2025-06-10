@@ -7,6 +7,14 @@
     { "id": 4, "x": -94.0,  "y": 360.0, "neighbors": [3, 5],    "hasTreasure": false },
     { "id": 5, "x": -124.5, "y": 293.0, "neighbors": [4, 6],    "hasTreasure": false },
     { "id": 6, "x": -155.0, "y": 229.0, "neighbors": [5, 7],    "hasTreasure": false },
-    { "id": 7, "x": -183.9, "y": 164.0, "neighbors": [6],       "hasTreasure": false }
+    { "id": 7, "x": -183.9, "y": 164.0, "neighbors": [6, 8],       "hasTreasure": false },
+    { "id": 8, "x": -221.0, "y": 100.0, "neighbors": [7, 9],       "hasTreasure": false },
+    { "id": 9, "x": -272.0, "y": -33.0, "neighbors": [8, 10],       "hasTreasure": false },
+    { "id": 10, "x": -299.0, "y": -93.0, "neighbors": [9, 11],       "hasTreasure": false },
+    { "id": 11, "x": -354.9, "y": -152.0, "neighbors": [10, 12],       "hasTreasure": false },
+    { "id": 12, "x": -414.9, "y": -152.0, "neighbors": [11, 13],       "hasTreasure": false },
+    { "id": 13, "x": -470.9, "y": -152.0, "neighbors": [12, 14],       "hasTreasure": false },
+    { "id": 14, "x": -558.5, "y": -152.0, "neighbors": [13, 15],       "hasTreasure": false },
+    { "id": 15, "x": -627.4, "y": -69.0, "neighbors": [14],       "hasTreasure": false }
   ]
 }

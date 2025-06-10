@@ -14,6 +14,14 @@ public class TestLauncher : MonoBehaviour
 
         GenerateTestPlayers();
         gameManager.BeginTurn();  // 需要確保 GameManager 的 BeginTurn 是 public
+
+        int[] startNodes = { 0, 1, 2, 3, 4, 5, 6, 7, 0, 1, 2, 3 };
+
+        gameManager.SetPlayerPositions(startNodes);
+        gameManager.ForceStartGame();
+
+
+
     }
 
     void GenerateTestPlayers()

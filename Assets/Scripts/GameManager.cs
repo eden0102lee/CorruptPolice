@@ -84,6 +84,22 @@ public class GameManager : MonoBehaviour
         thiefPlayers.Add(thief);
         allPlayers.Add(thief);
     }
+    // --- Testing Utilities ---
+    public void SetPlayerPositions(int[] nodeIds)
+    {
+        for (int i = 0; i < nodeIds.Length && i < allPlayers.Count; i++)
+        {
+            allPlayers[i].MoveTo(nodeIds[i]);
+        }
+    }
+
+    public void ForceStartGame()
+    {
+        CurrentPhase = GamePhase.Playing;
+        currentTeamTurnIndex = (currentRound - 1) % policeTeamCount;
+        currentPlayerIndex = 0;
+        NextPlayerTurn();
+    }
 
     void BeginPlacement()
     {
