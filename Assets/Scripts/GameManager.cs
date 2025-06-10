@@ -41,7 +41,8 @@ public class GameManager : MonoBehaviour
     {
         Instance = this;
         InitializeTeams();
-        BeginPlacement();
+        if (PlayerInputController.Instance != null)
+            BeginPlacement();
     }
 
     void InitializeTeams()
