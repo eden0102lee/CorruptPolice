@@ -19,7 +19,7 @@ public class TestLauncher : MonoBehaviour
 
         gameManager.SetPlayerPositions(startNodes);
 
-        gameManager.ForceStartGame();
+        //gameManager.ForceStartGame();
 
         gameManager.BeginTurn();  // ݭnTO GameManager  BeginTurn O public
 

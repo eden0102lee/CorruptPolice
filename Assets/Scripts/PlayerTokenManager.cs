@@ -53,7 +53,6 @@ public class PlayerTokenManager : MonoBehaviour
         RectTransform nodeRect = nodeObj.GetComponent<RectTransform>();
         if (nodeRect != null)
         {
-            tokenRect.SetParent(tokenParent, false);
             tokenRect.position = nodeRect.position;
         }
     }
