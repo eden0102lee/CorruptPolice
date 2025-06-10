@@ -40,6 +40,8 @@ public class PlayerInputController : MonoBehaviour
         originalNodeId = player.currentNodeId;
         selectedNodeId = -1;
         HighlightCurrentNode();
+        int round = GameManager.Instance != null ? GameManager.Instance.CurrentRound : -1;
+        Debug.Log($"[Turn] Round {round} - {currentPlayer.playerName} ({currentPlayer.role}) begins with {currentPlayer.remainingSteps} steps");
     }
 
     public void StartPlacement(PlayerData player)
@@ -114,6 +116,8 @@ public class PlayerInputController : MonoBehaviour
         if (PlayerTokenManager.Instance != null)
             PlayerTokenManager.Instance.UpdateTokenPosition(currentPlayer);
         currentPlayer.remainingSteps--;
+        int round = GameManager.Instance != null ? GameManager.Instance.CurrentRound : -1;
+        Debug.Log($"[Action] Round {round} - {currentPlayer.playerName} performed {currentAction} on node {selectedNodeId}. Remaining steps: {currentPlayer.remainingSteps}");
 
         string result = string.Empty;
         bool isShared = true;
