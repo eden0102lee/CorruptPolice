@@ -66,6 +66,8 @@ public class PlayerInputController : MonoBehaviour
         {
             if (currentPlayer == null) return;
             currentPlayer.currentNodeId = nodeId;
+            if (PlayerTokenManager.Instance != null)
+                PlayerTokenManager.Instance.UpdateTokenPosition(currentPlayer);
             MapManager.Instance.GetNodeUI(nodeId)?.Highlight();
             placementMode = false;
             GameManager.Instance.ConfirmPlacement();
@@ -109,6 +111,8 @@ public class PlayerInputController : MonoBehaviour
         if (selectedNodeId == -1 || currentPlayer == null) return;
 
         currentPlayer.currentNodeId = selectedNodeId;
+        if (PlayerTokenManager.Instance != null)
+            PlayerTokenManager.Instance.UpdateTokenPosition(currentPlayer);
         currentPlayer.remainingSteps--;
 
         string result = string.Empty;
