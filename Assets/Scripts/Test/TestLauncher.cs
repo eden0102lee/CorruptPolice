@@ -13,12 +13,12 @@ public class TestLauncher : MonoBehaviour
         mapManager.LoadAndBuildMap();
 
         GenerateTestPlayers();
-        gameManager.BeginTurn();  // »İ­n½T«O GameManager ªº BeginTurn ¬O public
+        int[] startNodes = { 1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4 };
 
-        int[] startNodes = { 0, 1, 2, 3, 4, 5, 6, 7, 0, 1, 2, 3 };
+            player.currentNodeId = i % 4 + 1;  // w]lI
 
-        gameManager.SetPlayerPositions(startNodes);
-        gameManager.ForceStartGame();
+        thief1.currentNodeId = 7;
+        thief2.currentNodeId = 8;
 
 
 
@@ -26,19 +26,19 @@ public class TestLauncher : MonoBehaviour
 
     void GenerateTestPlayers()
     {
-        // 10 Äµ¹î¡]¥­§¡¤À3²Õ¡^¡A2 ¤p°½
+        // 10 è­¦å¯Ÿï¼ˆå¹³å‡åˆ†3çµ„ï¼‰ï¼Œ2 å°å·
         for (int i = 0; i < 10; i++)
         {
-            var player = new PlayerData("Äµ¹î" + i, PlayerRole.Police, i % 3);
-            player.currentNodeId = i % 4;  // ¹w³]ªì©l¯¸ÂI
+            var player = new PlayerData("è­¦å¯Ÿ" + i, PlayerRole.Police, i % 3);
+            player.currentNodeId = i % 4;  // é è¨­åˆå§‹ç«™é»
             gameManager.RegisterPolice(player);
         }
 
-        var thief1 = new PlayerData("¤p°½1", PlayerRole.Thief, -1);
+        var thief1 = new PlayerData("å°å·1", PlayerRole.Thief, -1);
         thief1.currentNodeId = 6;
         gameManager.RegisterThief(thief1);
 
-        var thief2 = new PlayerData("¤p°½2", PlayerRole.Thief, -1);
+        var thief2 = new PlayerData("å°å·2", PlayerRole.Thief, -1);
         thief2.currentNodeId = 7;
         gameManager.RegisterThief(thief2);
     }

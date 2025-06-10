@@ -52,6 +52,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   nodeId: 0
   highlightImage: {fileID: 501749269610584988}
+  idText: {fileID: 2344272455982103196}
 --- !u!1 &4182895796840071249
 GameObject:
   m_ObjectHideFlags: 0
