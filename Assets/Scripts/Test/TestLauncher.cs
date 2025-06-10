@@ -10,17 +10,18 @@ public class TestLauncher : MonoBehaviour
         if (mapManager == null) mapManager = MapManager.Instance;
         if (gameManager == null) gameManager = GameManager.Instance;
 
-        mapManager.LoadAndBuildMap();
+        //mapManager.LoadAndBuildMap();
 
-        GenerateTestPlayers();
-        int[] startNodes = { 1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4 };
+        //GenerateTestPlayers();
+        
 
-            player.currentNodeId = i % 4 + 1;  // w]lI
+        int[] startNodes = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
 
-        thief1.currentNodeId = 7;
-        thief2.currentNodeId = 8;
+        gameManager.SetPlayerPositions(startNodes);
 
+        gameManager.ForceStartGame();
 
+        gameManager.BeginTurn();  // ݭnTO GameManager  BeginTurn O public
 
     }
 
