@@ -9,6 +9,15 @@ public class NodeUI : MonoBehaviour
     public Image highlightImage;
     public TMP_Text idText;
 
+    private Button button;
+
+    private void Awake()
+    {
+        button = GetComponentInChildren<Button>();
+        if (button != null)
+            button.onClick.AddListener(OnButtonClicked);
+    }
+
     private void Start()
     {
         highlightImage.enabled = false;
@@ -16,9 +25,8 @@ public class NodeUI : MonoBehaviour
             idText.text = nodeId.ToString();
     }
 
-    private void OnMouseDown()
+    void OnButtonClicked()
     {
-        if (EventSystem.current.IsPointerOverGameObject()) return;
         PlayerInputController.Instance.OnNodeClicked(nodeId);
     }
 
