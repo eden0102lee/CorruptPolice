@@ -16,12 +16,15 @@ public class MapManager : MonoBehaviour
     public TextAsset mapJsonFile;
     public GameObject nodePrefab;
     public Transform nodeParent;
+    public Transform pieceUIParent;
+    public GameObject pieceUIPrefab;
 
     private Dictionary<int, MapNodeData> nodeDataDict = new Dictionary<int, MapNodeData>();
     private Dictionary<int, GameObject> nodeGameObjects = new Dictionary<int, GameObject>();
     private Dictionary<int, NodeUI> nodeUIs = new Dictionary<int, NodeUI>();
     private HashSet<int> treasures = new HashSet<int>();
     private Dictionary<int, List<string>> footprints = new Dictionary<int, List<string>>();
+    private Dictionary<int, GameObject> treasurePieces = new Dictionary<int, GameObject>();
 
     void Awake()
     {
@@ -59,6 +62,9 @@ public class MapManager : MonoBehaviour
         nodeUIs.Clear();
         treasures.Clear();
         footprints.Clear();
+        foreach (var piece in treasurePieces.Values)
+            Destroy(piece);
+        treasurePieces.Clear();
 
         foreach (var node in mapData.nodes)
         {
@@ -78,6 +84,23 @@ public class MapManager : MonoBehaviour
 
             nodeGameObjects[node.id] = go;
             nodeUIs[node.id] = ui;
+
+            if (node.hasTreasure)
+            {
+                AddTreasure(node.id);
+                if (pieceUIPrefab != null)
+                {
+                    Transform parent = pieceUIParent == null ? nodeParent : pieceUIParent;
+                    GameObject piece = Instantiate(pieceUIPrefab, parent);
+                    piece.name = $"Treasure_{node.id}";
+                    RectTransform pieceRect = piece.GetComponent<RectTransform>();
+                    if (pieceRect != null)
+                        pieceRect.anchoredPosition = rect.anchoredPosition;
+                    else
+                        piece.transform.position = rect.position;
+                    treasurePieces[node.id] = piece;
+                }
+            }
         }
     }
 
