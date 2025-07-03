@@ -4,31 +4,31 @@ using UnityEngine.UI;
 using System.Linq;
 
 /// <summary>
-/// ±±¨îª±®a¾Ş§@¡A¥]¬A²¾°Ê¡B½Õ¬d»P¶e®·¦æ°Êªº¿ï¾Ü»P°õ¦æ
+/// æ§åˆ¶ç©å®¶æ“ä½œï¼ŒåŒ…æ‹¬ç§»å‹•ã€èª¿æŸ¥èˆ‡é€®æ•è¡Œå‹•çš„é¸æ“‡èˆ‡åŸ·è¡Œ
 /// </summary>
 public class PlayerInputController : MonoBehaviour
 {
     public static PlayerInputController Instance;
 
-    public GameObject actionPanel;         // ¦æ°Ê¿ï³æ­±ªO
-    public Button moveButton;              // ¤p°½²¾°Ê«ö¶s
-    public Button investigateButton;       // Äµ¹î½Õ¬d«ö¶s
-    public Button arrestButton;            // Äµ¹î¶e®·«ö¶s
-    public Button confirmButton;           // ½T»{¦æ°Ê«ö¶s
+    public GameObject actionPanel;         // è¡Œå‹•é¸å–®é¢æ¿
+    public Button moveButton;              // å°å·ç§»å‹•æŒ‰éˆ•
+    public Button investigateButton;       // è­¦å¯Ÿèª¿æŸ¥æŒ‰éˆ•
+    public Button arrestButton;            // è­¦å¯Ÿé€®æ•æŒ‰éˆ•
+    public Button confirmButton;           // ç¢ºèªè¡Œå‹•æŒ‰éˆ•
 
-    private PlayerData currentPlayer;      // ·í«e½ü¨ìªºª±®a
-    private int selectedNodeId = -1;       // ª±®a¿ï¾Üªº¥Ø¼Ğ¸`ÂI
-    private int originalNodeId = -1;       // ª±®a°_©l¸`ÂI
+    private PlayerData currentPlayer;      // ç•¶å‰è¼ªåˆ°çš„ç©å®¶
+    private int selectedNodeId = -1;       // ç©å®¶é¸æ“‡çš„ç›®æ¨™ç¯€é»
+    private int originalNodeId = -1;       // ç©å®¶èµ·å§‹ç¯€é»
 
-    private bool placementMode = false;    // ¬O§_³B©óªì©l©ñ¸m¶¥¬q
-    private ActionType currentAction;      // ·í«e¿ï¾Üªº¦æ°ÊÃş«¬
+    private bool placementMode = false;    // æ˜¯å¦è™•æ–¼åˆå§‹æ”¾ç½®éšæ®µ
+    private ActionType currentAction;      // ç•¶å‰é¸æ“‡çš„è¡Œå‹•é¡å‹
 
     void Awake()
     {
         Instance = this;
         actionPanel.SetActive(false);
 
-        // ¬°¦U­Ó«ö¶s¸j©w¹ïÀ³ªº¾Ş§@¤èªk
+        // ç‚ºå„å€‹æŒ‰éˆ•ç¶å®šå°æ‡‰çš„æ“ä½œæ–¹æ³•
         confirmButton.onClick.AddListener(OnConfirmAction);
         moveButton.onClick.AddListener(() => SetActionType(ActionType.Move));
         investigateButton.onClick.AddListener(() => SetActionType(ActionType.Investigate));
@@ -36,7 +36,7 @@ public class PlayerInputController : MonoBehaviour
     }
 
     /// <summary>
-    /// ³]©w·í«e±±¨îªºª±®a¨Ãªì©l¤Æ¨äª¬ºA
+    /// è¨­å®šç•¶å‰æ§åˆ¶çš„ç©å®¶ä¸¦åˆå§‹åŒ–å…¶ç‹€æ…‹
     /// </summary>
     public void SetCurrentPlayer(PlayerData player)
     {
@@ -54,7 +54,7 @@ public class PlayerInputController : MonoBehaviour
     }
 
     /// <summary>
-    /// ±Ò°Êªì©l©ñ¸m¼Ò¦¡¡Aµ¥«İª±®a¿ï¾Ü°_©l¸`ÂI
+    /// å•Ÿå‹•åˆå§‹æ”¾ç½®æ¨¡å¼ï¼Œç­‰å¾…ç©å®¶é¸æ“‡èµ·å§‹ç¯€é»
     /// </summary>
     public void StartPlacement(PlayerData player)
     {
@@ -66,7 +66,7 @@ public class PlayerInputController : MonoBehaviour
     }
 
     /// <summary>
-    /// °ª«G¥Ø«e©Ò¦bªº¸`ÂI
+    /// é«˜äº®ç›®å‰æ‰€åœ¨çš„ç¯€é»
     /// </summary>
     void HighlightCurrentNode()
     {
@@ -78,7 +78,7 @@ public class PlayerInputController : MonoBehaviour
     }
 
     /// <summary>
-    /// ³B²z¸`ÂIÂIÀ»¨Æ¥ó¡A¥]§t²¾°Ê»Pªì©l©ñ¸m
+    /// è™•ç†ç¯€é»é»æ“Šäº‹ä»¶ï¼ŒåŒ…å«ç§»å‹•èˆ‡åˆå§‹æ”¾ç½®
     /// </summary>
     public void OnNodeClicked(int nodeId)
     {
@@ -116,7 +116,7 @@ public class PlayerInputController : MonoBehaviour
     }
 
     /// <summary>
-    /// Åã¥Ü¦æ°Ê¿ï³æ¡A¨Ì·Ó¨¤¦â¶}±Ò¹ïÀ³¿ï¶µ
+    /// é¡¯ç¤ºè¡Œå‹•é¸å–®ï¼Œä¾ç…§è§’è‰²é–‹å•Ÿå°æ‡‰é¸é …
     /// </summary>
     void ShowActionPanel()
     {
@@ -127,7 +127,7 @@ public class PlayerInputController : MonoBehaviour
     }
 
     /// <summary>
-    /// ³]©w·í«e¿ï¾Üªº¦æ°Ê
+    /// è¨­å®šç•¶å‰é¸æ“‡çš„è¡Œå‹•
     /// </summary>
     void SetActionType(ActionType action)
     {
@@ -135,7 +135,7 @@ public class PlayerInputController : MonoBehaviour
     }
 
     /// <summary>
-    /// °õ¦æ¥Ø«e¿ï¾Üªº¦æ°ÊÅŞ¿è¡A¨Ã¬ö¿ıµ²ªG
+    /// åŸ·è¡Œç›®å‰é¸æ“‡çš„è¡Œå‹•é‚è¼¯ï¼Œä¸¦ç´€éŒ„çµæœ
     /// </summary>
     void OnConfirmAction()
     {
@@ -153,20 +153,27 @@ public class PlayerInputController : MonoBehaviour
         string result = string.Empty;
         bool isShared = true;
 
-        // ¤p°½²¾°Ê
-        if (currentAction == ActionType.Move && currentPlayer.role == PlayerRole.Thief)
+            if (thief != null)
+            {
+                GameManager.Instance.ArrestThief(thief);
+                result = $"Arrested ({thief.playerName})";
+            }
+            else
+            {
+                result = "No thief";
+            }
         {
             MapManager.Instance.AddFootprint(selectedNodeId, currentPlayer.playerName);
             result = MapManager.Instance.HasTreasure(selectedNodeId) ? "Found treasure" : "No treasure";
         }
-        // Äµ¹î½Õ¬d
+        // è­¦å¯Ÿèª¿æŸ¥
         else if (currentAction == ActionType.Investigate && currentPlayer.role != PlayerRole.Thief)
         {
             var hasClue = MapManager.Instance.HasFootprint(selectedNodeId);
             result = hasClue ? "Found clue" : "No clue";
             isShared = false;
         }
-        // Äµ¹î¶e®·
+        // è­¦å¯Ÿé€®æ•
         else if (currentAction == ActionType.Arrest && currentPlayer.role != PlayerRole.Thief)
         {
             var thief = GameManager.Instance.GetThiefAt(selectedNodeId);

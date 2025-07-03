@@ -151,6 +151,9 @@ public class GameManager : MonoBehaviour
     {
         if (thiefPhase)
         {
+            while (currentThiefIndex < thiefPlayers.Count && thiefPlayers[currentThiefIndex].isArrested)
+                currentThiefIndex++;
+
             if (currentThiefIndex < thiefPlayers.Count)
             {
                 var player = thiefPlayers[currentThiefIndex];
@@ -168,6 +171,12 @@ public class GameManager : MonoBehaviour
         }
         else
         {
+            while (currentPlayerIndex < policeTeams[currentTeamTurnIndex].Count &&
+                   policeTeams[currentTeamTurnIndex][currentPlayerIndex].isArrested)
+            {
+                currentPlayerIndex++;
+            }
+
             if (currentPlayerIndex < policeTeams[currentTeamTurnIndex].Count)
             {
                 var player = policeTeams[currentTeamTurnIndex][currentPlayerIndex];
@@ -222,6 +231,18 @@ public class GameManager : MonoBehaviour
                 return thief;
         }
         return null;
+    }
+
+    public void ArrestThief(PlayerData thief)
+    {
+        if (thief == null || thief.isArrested)
+            return;
+
+        thief.isArrested = true;
+        thief.currentNodeId = -1;
+
+        if (PlayerTokenManager.Instance != null)
+            PlayerTokenManager.Instance.HideToken(thief);
     }
 
     public List<PlayerData> GetAllPlayers() => allPlayers;

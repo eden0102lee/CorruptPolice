@@ -12,6 +12,7 @@ public class PlayerData
     public int teamIndex;
     public int currentNodeId;
     public int remainingSteps;
+    public bool isArrested;
 
     public PlayerData(string name, PlayerRole role, int teamIndex)
     {
@@ -20,6 +21,7 @@ public class PlayerData
         this.teamIndex = teamIndex;
         this.currentNodeId = -1;
         this.remainingSteps = 0;
+        this.isArrested = false;
     }
 
     public void MoveTo(int nodeId)
