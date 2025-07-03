@@ -30,6 +30,8 @@ public class GameManager : MonoBehaviour
     [Tooltip("Number of thief players")] public int thiefCount = 2;
     private int currentTeamTurnIndex = 0;
     private int currentPlayerIndex = 0;
+    private bool thiefPhase = true;
+    private int currentThiefIndex = 0;
 
     private List<List<PlayerData>> policeTeams = new List<List<PlayerData>>();
     private List<PlayerData> thiefPlayers = new List<PlayerData>();
@@ -96,6 +98,8 @@ public class GameManager : MonoBehaviour
     public void ForceStartGame()
     {
         CurrentPhase = GamePhase.Playing;
+        thiefPhase = true;
+        currentThiefIndex = 0;
         currentTeamTurnIndex = (currentRound - 1) % policeTeamCount;
         currentPlayerIndex = 0;
         NextPlayerTurn();
@@ -136,6 +140,8 @@ public class GameManager : MonoBehaviour
     public void BeginTurn()
     {
         Debug.Log($"Round {currentRound} start");
+        thiefPhase = true;
+        currentThiefIndex = 0;
         currentTeamTurnIndex = (currentRound - 1) % policeTeamCount;
         currentPlayerIndex = 0;
         NextPlayerTurn();
@@ -143,24 +149,44 @@ public class GameManager : MonoBehaviour
 
     public void NextPlayerTurn()
     {
-        if (currentPlayerIndex < policeTeams[currentTeamTurnIndex].Count)
+        if (thiefPhase)
         {
-            var player = policeTeams[currentTeamTurnIndex][currentPlayerIndex];
-            player.remainingSteps = stepsPerTurn;
-            PlayerInputController.Instance.SetCurrentPlayer(player);
-            currentPlayerIndex++;
-        }
-        else
-        {
-            currentTeamTurnIndex = (currentTeamTurnIndex + 1) % policeTeamCount;
-            if (currentTeamTurnIndex == (currentRound - 1) % policeTeamCount)
+            if (currentThiefIndex < thiefPlayers.Count)
             {
-                EndRound();
+                var player = thiefPlayers[currentThiefIndex];
+                player.remainingSteps = stepsPerTurn;
+                PlayerInputController.Instance.SetCurrentPlayer(player);
+                currentThiefIndex++;
             }
             else
             {
+                thiefPhase = false;
+                currentTeamTurnIndex = (currentRound - 1) % policeTeamCount;
                 currentPlayerIndex = 0;
                 NextPlayerTurn();
+            }
+        }
+        else
+        {
+            if (currentPlayerIndex < policeTeams[currentTeamTurnIndex].Count)
+            {
+                var player = policeTeams[currentTeamTurnIndex][currentPlayerIndex];
+                player.remainingSteps = stepsPerTurn;
+                PlayerInputController.Instance.SetCurrentPlayer(player);
+                currentPlayerIndex++;
+            }
+            else
+            {
+                currentTeamTurnIndex = (currentTeamTurnIndex + 1) % policeTeamCount;
+                if (currentTeamTurnIndex == (currentRound - 1) % policeTeamCount)
+                {
+                    EndRound();
+                }
+                else
+                {
+                    currentPlayerIndex = 0;
+                    NextPlayerTurn();
+                }
             }
         }
     }
