@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 5793101317646510000}
   - component: {fileID: 9199342110904484166}
   m_Layer: 5
-  m_Name: mapNodePrefab
+  m_Name: MapNodeUI_Prefab
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
