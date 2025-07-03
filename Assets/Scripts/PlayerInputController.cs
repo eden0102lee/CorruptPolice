@@ -152,7 +152,20 @@ public class PlayerInputController : MonoBehaviour
 
         string result = string.Empty;
         bool isShared = true;
-
+        if (currentAction == ActionType.Move && currentPlayer.role == PlayerRole.Thief)
+        {
+            MapManager.Instance.AddFootprint(selectedNodeId, currentPlayer.playerName);
+            result = MapManager.Instance.HasTreasure(selectedNodeId) ? "Found treasure" : "No treasure";
+        }
+        else if (currentAction == ActionType.Investigate && currentPlayer.role != PlayerRole.Thief)
+        {
+            var hasClue = MapManager.Instance.HasFootprint(selectedNodeId);
+            result = hasClue ? "Found clue" : "No clue";
+            isShared = false;
+        }
+        else if (currentAction == ActionType.Arrest && currentPlayer.role != PlayerRole.Thief)
+        {
+            var thief = GameManager.Instance.GetThiefAt(selectedNodeId);
             if (thief != null)
             {
                 GameManager.Instance.ArrestThief(thief);
@@ -162,25 +175,8 @@ public class PlayerInputController : MonoBehaviour
             {
                 result = "No thief";
             }
-        {
-            MapManager.Instance.AddFootprint(selectedNodeId, currentPlayer.playerName);
-            result = MapManager.Instance.HasTreasure(selectedNodeId) ? "Found treasure" : "No treasure";
-        }
-        // 警察調查
-        else if (currentAction == ActionType.Investigate && currentPlayer.role != PlayerRole.Thief)
-        {
-            var hasClue = MapManager.Instance.HasFootprint(selectedNodeId);
-            result = hasClue ? "Found clue" : "No clue";
-            isShared = false;
-        }
-        // 警察逮捕
-        else if (currentAction == ActionType.Arrest && currentPlayer.role != PlayerRole.Thief)
-        {
-            var thief = GameManager.Instance.GetThiefAt(selectedNodeId);
-            result = thief != null ? $"Arrested ({thief.playerName})" : "No thief";
             isShared = true;
         }
-
         if (ActionLogger.Instance != null)
         {
             ActionLogger.Instance.Log(
