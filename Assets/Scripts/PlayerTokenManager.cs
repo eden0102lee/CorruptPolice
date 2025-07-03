@@ -72,6 +72,9 @@ public class PlayerTokenManager : MonoBehaviour
         }
 
         UpdateTokenPosition(player);
+
+        if (player.isArrested)
+            HideToken(player);
     }
 
     public void UpdateTokenPosition(PlayerData player)
@@ -79,7 +82,7 @@ public class PlayerTokenManager : MonoBehaviour
         if (!tokens.TryGetValue(player, out GameObject token))
             return;
 
-        if (player.currentNodeId < 0)
+        if (player.currentNodeId < 0 || player.isArrested)
             return;
 
         GameObject nodeObj = MapManager.Instance.GetNodeObject(player.currentNodeId);
@@ -90,6 +93,14 @@ public class PlayerTokenManager : MonoBehaviour
         if (nodeRect != null)
         {
             tokenRect.position = nodeRect.position;
+        }
+    }
+
+    public void HideToken(PlayerData player)
+    {
+        if (tokens.TryGetValue(player, out GameObject token))
+        {
+            token.SetActive(false);
         }
     }
 }
