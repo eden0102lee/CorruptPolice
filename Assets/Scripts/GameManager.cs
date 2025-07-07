@@ -7,13 +7,27 @@ public enum GamePhase
     Playing
 }
 
+public enum GameResult
+{
+    None,
+    Police,
+    Thieves
+}
+
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
 
-    public int maxRounds = 15;
+    public int maxRounds = 12;
     public int currentRound = 1;
     public int stepsPerTurn = 1;
+
+    [Header("Win Conditions")]
+    [Tooltip("How many treasures thieves must collect to win")]
+    public int treasureGoal = 3;
+
+    private int treasuresCollected = 0;
+    public GameResult Result { get; private set; } = GameResult.None;
 
     public GamePhase CurrentPhase { get; private set; } = GamePhase.Placement;
 
@@ -32,6 +46,7 @@ public class GameManager : MonoBehaviour
     private int currentPlayerIndex = 0;
     private bool thiefPhase = true;
     private int currentThiefIndex = 0;
+    private bool gameOver = false;
 
     private List<List<PlayerData>> policeTeams = new List<List<PlayerData>>();
     private List<PlayerData> thiefPlayers = new List<PlayerData>();
@@ -149,6 +164,8 @@ public class GameManager : MonoBehaviour
 
     public void NextPlayerTurn()
     {
+        if (gameOver)
+            return;
         if (thiefPhase)
         {
             while (currentThiefIndex < thiefPlayers.Count && thiefPlayers[currentThiefIndex].isArrested)
@@ -205,12 +222,9 @@ public class GameManager : MonoBehaviour
         Debug.Log($"Round {currentRound} end");
 
         currentRound++;
-        if (currentRound > maxRounds)
-        {
-            Debug.Log("Game over");
-            return;
-        }
-        BeginTurn();
+        CheckGameEnd();
+        if (!gameOver)
+            BeginTurn();
     }
 
     public bool IsThiefAt(int nodeId)
@@ -243,6 +257,14 @@ public class GameManager : MonoBehaviour
 
         if (PlayerTokenManager.Instance != null)
             PlayerTokenManager.Instance.HideToken(thief);
+
+        CheckGameEnd();
+    }
+
+    public void RecordTreasure()
+    {
+        treasuresCollected++;
+        CheckGameEnd();
     }
 
     public List<PlayerData> GetAllPlayers() => allPlayers;
@@ -263,6 +285,36 @@ public class GameManager : MonoBehaviour
             thiefPlayers.Add(player);
         if (!allPlayers.Contains(player))
             allPlayers.Add(player);
+    }
+
+    bool AreAllThievesArrested()
+    {
+        foreach (var t in thiefPlayers)
+            if (!t.isArrested)
+                return false;
+        return true;
+    }
+
+    void CheckGameEnd()
+    {
+        if (gameOver)
+            return;
+        if (AreAllThievesArrested() || currentRound > maxRounds)
+        {
+            Result = GameResult.Police;
+            GameOver();
+        }
+        else if (treasuresCollected >= treasureGoal)
+        {
+            Result = GameResult.Thieves;
+            GameOver();
+        }
+    }
+
+    void GameOver()
+    {
+        gameOver = true;
+        Debug.Log($"Game over - {Result} win");
     }
 
 }
