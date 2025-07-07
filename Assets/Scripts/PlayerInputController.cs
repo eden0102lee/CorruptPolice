@@ -155,7 +155,15 @@ public class PlayerInputController : MonoBehaviour
         if (currentAction == ActionType.Move && currentPlayer.role == PlayerRole.Thief)
         {
             MapManager.Instance.AddFootprint(selectedNodeId, currentPlayer.playerName);
-            result = MapManager.Instance.HasTreasure(selectedNodeId) ? "Found treasure" : "No treasure";
+            if (MapManager.Instance.HasTreasure(selectedNodeId))
+            {
+                MapManager.Instance.CollectTreasure(selectedNodeId);
+                result = "Found treasure";
+            }
+            else
+            {
+                result = "No treasure";
+            }
         }
         else if (currentAction == ActionType.Investigate && currentPlayer.role != PlayerRole.Thief)
         {
