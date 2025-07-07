@@ -40,6 +40,12 @@ public class MapManager : MonoBehaviour
     private TreasureLog treasureLog = new TreasureLog();
     private string treasureLogPath;
 
+    private void SaveTreasureLog()
+    {
+        if (!string.IsNullOrEmpty(treasureLogPath))
+            File.WriteAllText(treasureLogPath, JsonUtility.ToJson(treasureLog, true));
+    }
+
     private Dictionary<int, MapNodeData> nodeDataDict = new Dictionary<int, MapNodeData>();
     private Dictionary<int, GameObject> nodeGameObjects = new Dictionary<int, GameObject>();
     private Dictionary<int, NodeUI> nodeUIs = new Dictionary<int, NodeUI>();
@@ -224,6 +230,59 @@ public class MapManager : MonoBehaviour
     public void AddTreasure(int nodeId)
     {
         treasures.Add(nodeId);
+    }
+
+    public void SetTreasure(int nodeId, bool present)
+    {
+        if (!nodeDataDict.ContainsKey(nodeId)) return;
+
+        var node = nodeDataDict[nodeId];
+
+        if (present)
+        {
+            if (treasures.Add(nodeId))
+            {
+                node.hasTreasure = true;
+
+                if (!treasurePieces.ContainsKey(nodeId) && pieceUIPrefab != null && nodeGameObjects.ContainsKey(nodeId))
+                {
+                    Transform parent = pieceUIParent == null ? nodeParent : pieceUIParent;
+                    GameObject piece = Instantiate(pieceUIPrefab, parent);
+                    piece.name = $"Treasure_{nodeId}";
+                    RectTransform nodeRect = nodeGameObjects[nodeId].GetComponent<RectTransform>();
+                    RectTransform pieceRect = piece.GetComponent<RectTransform>();
+                    if (nodeRect != null && pieceRect != null)
+                        pieceRect.anchoredPosition = nodeRect.anchoredPosition;
+                    else if (nodeRect != null)
+                        piece.transform.position = nodeRect.position;
+                    treasurePieces[nodeId] = piece;
+                }
+
+                if (treasureLog.treasures.Find(t => t.nodeId == nodeId) == null)
+                    treasureLog.treasures.Add(new TreasureRecord { nodeId = nodeId, collected = false });
+                SaveTreasureLog();
+            }
+        }
+        else
+        {
+            if (treasures.Remove(nodeId))
+            {
+                node.hasTreasure = false;
+
+                if (treasurePieces.ContainsKey(nodeId))
+                {
+                    Destroy(treasurePieces[nodeId]);
+                    treasurePieces.Remove(nodeId);
+                }
+
+                var rec = treasureLog.treasures.Find(t => t.nodeId == nodeId && !t.collected);
+                if (rec != null)
+                {
+                    treasureLog.treasures.Remove(rec);
+                    SaveTreasureLog();
+                }
+            }
+        }
     }
 
     public bool CollectTreasure(int nodeId)
