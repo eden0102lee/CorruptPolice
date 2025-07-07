@@ -897,13 +897,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e4e718170180b47448fc09cb5bff945b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxRounds: 15
+  maxRounds: 12
   currentRound: 1
   stepsPerTurn: 2
   policeTeamCount: 3
   regularPoliceCount: 8
   corruptPoliceCount: 2
   thiefCount: 2
+  treasureGoal: 3
 --- !u!4 &434212902
 Transform:
   m_ObjectHideFlags: 0
