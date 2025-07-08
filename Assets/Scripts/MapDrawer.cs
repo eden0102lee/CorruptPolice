@@ -43,6 +43,10 @@ public class MapDrawer : MonoBehaviour
         else if (isEditing)
         {
             HandleEditInput();
+            if (selectedNode != null && Input.GetKeyDown(KeyCode.Delete))
+            {
+                RemoveNode(selectedNode);
+            }
         }
     }
 
@@ -127,6 +131,10 @@ public class MapDrawer : MonoBehaviour
         routeName = GUILayout.TextField(routeName);
         startIndex = int.TryParse(GUILayout.TextField(startIndex.ToString()), out var si) ? si : startIndex;
         mergeThreshold = float.TryParse(GUILayout.TextField(mergeThreshold.ToString()), out var mt) ? mt : mergeThreshold;
+        if (!isDrawing && !isEditing && GUILayout.Button("Load Map"))
+        {
+            LoadMapIfExists();
+        }
         if (!isDrawing && !isEditing && GUILayout.Button("Start Drawing"))
         {
             nodes.Clear();
@@ -172,6 +180,10 @@ public class MapDrawer : MonoBehaviour
                 UpdateNodeId(selectedNode, newId);
             selectedNode.x = newX;
             selectedNode.y = newY;
+            if (GUILayout.Button("Delete Node"))
+            {
+                RemoveNode(selectedNode);
+            }
             GUILayout.EndArea();
         }
 
@@ -263,6 +275,16 @@ public class MapDrawer : MonoBehaviour
 
         node.id = newId;
         if (newId >= nextId) nextId = newId + 1;
+    }
+
+    private void RemoveNode(MapNodeData node)
+    {
+        if (node == null) return;
+        nodes.Remove(node);
+        foreach (var n in nodes)
+            n.neighbors.Remove(node.id);
+        if (lastNode == node) lastNode = null;
+        if (selectedNode == node) selectedNode = null;
     }
 
     private void ExportJson()
