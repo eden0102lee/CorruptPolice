@@ -227,6 +227,20 @@ public class MapManager : MonoBehaviour
         return new List<NodeUI>(nodeUIs.Values);
     }
 
+    public void ClearLoadedMap()
+    {
+        foreach (var go in nodeGameObjects.Values)
+            Destroy(go);
+        nodeGameObjects.Clear();
+        nodeUIs.Clear();
+        foreach (var piece in treasurePieces.Values)
+            Destroy(piece);
+        treasurePieces.Clear();
+        nodeDataDict.Clear();
+        treasures.Clear();
+        footprints.Clear();
+    }
+
     public void AddTreasure(int nodeId)
     {
         treasures.Add(nodeId);

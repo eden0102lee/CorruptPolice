@@ -24,6 +24,8 @@ public class MapDrawer : MonoBehaviour
     private Texture2D lineTex;
     private bool isDrawing = false;
     private bool isEditing = false;
+    private bool isPreviewing = false;
+    private MapManager mapManager;
 
     void Start()
     {
@@ -31,11 +33,16 @@ public class MapDrawer : MonoBehaviour
         lineTex = new Texture2D(1, 1);
         lineTex.SetPixel(0, 0, Color.cyan);
         lineTex.Apply();
+        mapManager = MapManager.Instance;
         LoadMapIfExists();
     }
 
     void Update()
     {
+        if (isPreviewing)
+        {
+            return;
+        }
         if (isDrawing)
         {
             HandleDrawingInput();
@@ -131,11 +138,12 @@ public class MapDrawer : MonoBehaviour
         routeName = GUILayout.TextField(routeName);
         startIndex = int.TryParse(GUILayout.TextField(startIndex.ToString()), out var si) ? si : startIndex;
         mergeThreshold = float.TryParse(GUILayout.TextField(mergeThreshold.ToString()), out var mt) ? mt : mergeThreshold;
+
         if (!isDrawing && !isEditing && GUILayout.Button("Load Map"))
         {
             LoadMapIfExists();
         }
-        if (!isDrawing && !isEditing && GUILayout.Button("Start Drawing"))
+        if (!isDrawing && !isEditing && !isPreviewing && GUILayout.Button("Start Drawing"))
         {
             nodes.Clear();
             nextId = startIndex;
@@ -148,7 +156,7 @@ public class MapDrawer : MonoBehaviour
             isDrawing = false;
             ExportJson();
         }
-        if (!isDrawing && !isEditing && GUILayout.Button("Edit Nodes"))
+        if (!isDrawing && !isEditing && !isPreviewing && GUILayout.Button("Edit Nodes"))
         {
             isEditing = true;
             selectedNode = null;
@@ -158,6 +166,14 @@ public class MapDrawer : MonoBehaviour
             isEditing = false;
             selectedNode = null;
             ExportJson();
+        }
+        if (!isDrawing && !isEditing && !isPreviewing && GUILayout.Button("Preview"))
+        {
+            EnterPreview();
+        }
+        else if (isPreviewing && GUILayout.Button("End Preview"))
+        {
+            ExitPreview();
         }
         if (GUILayout.Button("Clear"))
         {
@@ -187,8 +203,11 @@ public class MapDrawer : MonoBehaviour
             GUILayout.EndArea();
         }
 
-        DrawConnections();
-        DrawNodes();
+        if (!isPreviewing)
+        {
+            DrawConnections();
+            DrawNodes();
+        }
     }
 
     private MapNodeData FindNearbyNode(Vector2 localPos, float threshold)
@@ -327,5 +346,41 @@ public class MapDrawer : MonoBehaviour
             lastNode = null;
         }
 #endif
+    }
+
+    private void EnterPreview()
+    {
+        if (mapManager == null)
+            mapManager = MapManager.Instance != null ? MapManager.Instance : FindObjectOfType<MapManager>();
+        if (mapManager == null) return;
+        string json = JsonUtility.ToJson(new MapData { nodes = new List<MapNodeData>(nodes) }, true);
+        mapManager.mapJsonFile = new TextAsset(json);
+        mapManager.LoadAndBuildMap();
+        isPreviewing = true;
+    }
+
+    private void ExitPreview()
+    {
+        if (mapManager == null)
+            mapManager = MapManager.Instance != null ? MapManager.Instance : FindObjectOfType<MapManager>();
+        if (mapManager != null)
+        {
+            foreach (var node in nodes)
+            {
+                GameObject go = mapManager.GetNodeObject(node.id);
+                if (go != null)
+                {
+                    RectTransform r = go.GetComponent<RectTransform>();
+                    if (r != null)
+                    {
+                        node.x = r.anchoredPosition.x;
+                        node.y = r.anchoredPosition.y;
+                    }
+                }
+            }
+            mapManager.ClearLoadedMap();
+        }
+        isPreviewing = false;
+        ExportJson();
     }
 }
