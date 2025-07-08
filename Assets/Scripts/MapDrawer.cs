@@ -9,6 +9,8 @@ public class MapDrawer : MonoBehaviour
 {
     public Texture2D background;
     public RectTransform drawArea;
+    public RectTransform mapRoot;
+
     public string mapName = "test_map";
     public string routeName = "A";
     public int startIndex = 1;
@@ -17,6 +19,8 @@ public class MapDrawer : MonoBehaviour
     private List<MapNodeData> nodes = new();
     private int nextId;
     private MapNodeData lastNode;
+    private MapNodeData selectedNode;
+    private bool draggingNode = false;
     private Texture2D lineTex;
     private bool isDrawing = false;
 
@@ -31,24 +35,36 @@ public class MapDrawer : MonoBehaviour
 
     void Update()
     {
-        if (!isDrawing) return;
+        if (isDrawing)
+        {
+            HandleDrawingInput();
+        }
+        else
+        {
+            HandleEditInput();
+        }
+    }
+
+    private void HandleDrawingInput()
+    {
         if (Input.GetMouseButtonDown(0))
         {
             if (drawArea != null &&
                 !RectTransformUtility.RectangleContainsScreenPoint(drawArea, Input.mousePosition))
                 return;
 
-            Vector2 pos = Input.mousePosition;
-            pos.y = Screen.height - pos.y;
-            MapNodeData current = FindNearbyNode(pos, mergeThreshold);
+            Vector2 localPos = ScreenToLocal(Input.mousePosition);
+
+            MapNodeData current = FindNearbyNode(localPos, mergeThreshold);
             if (current == null)
             {
                 current = new MapNodeData
                 {
                     id = nextId,
-                    x = pos.x,
-                    y = pos.y,
+                    x = localPos.x,
+                    y = localPos.y,
                     route = routeName,
+                    name = "Node " + nextId,
                     neighbors = new List<int>()
                 };
                 nodes.Add(current);
@@ -62,6 +78,40 @@ public class MapDrawer : MonoBehaviour
 
             lastNode = current;
         }
+    }
+
+    private void HandleEditInput()
+    {
+        if (Input.GetMouseButtonDown(0))
+        {
+            if (drawArea != null &&
+                !RectTransformUtility.RectangleContainsScreenPoint(drawArea, Input.mousePosition))
+                return;
+
+            Vector2 localPos = ScreenToLocal(Input.mousePosition);
+            selectedNode = FindNearbyNode(localPos, mergeThreshold);
+            draggingNode = selectedNode != null;
+        }
+        else if (Input.GetMouseButton(0) && draggingNode && selectedNode != null)
+        {
+            Vector2 localPos = ScreenToLocal(Input.mousePosition);
+            selectedNode.x = localPos.x;
+            selectedNode.y = localPos.y;
+        }
+        else if (Input.GetMouseButtonUp(0))
+        {
+            draggingNode = false;
+        }
+    }
+
+    private Vector2 ScreenToLocal(Vector2 screenPos)
+    {
+        Vector2 localPos = Vector2.zero;
+        if (mapRoot != null)
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(mapRoot, screenPos, null, out localPos);
+        else
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(drawArea, screenPos, null, out localPos);
+        return localPos;
     }
 
     void OnGUI()
@@ -96,16 +146,24 @@ public class MapDrawer : MonoBehaviour
             lastNode = null;
         }
         GUILayout.EndArea();
+        if (selectedNode != null)
+        {
+            GUILayout.BeginArea(new Rect(5, 170, 300, 120), GUI.skin.box);
+            GUILayout.Label($"Editing Node {selectedNode.id}");
+            selectedNode.name = GUILayout.TextField(selectedNode.name);
+            selectedNode.route = GUILayout.TextField(selectedNode.route);
+            GUILayout.EndArea();
+        }
 
         DrawConnections();
         DrawNodes();
     }
 
-    private MapNodeData FindNearbyNode(Vector2 pos, float threshold)
+    private MapNodeData FindNearbyNode(Vector2 localPos, float threshold)
     {
         foreach (var node in nodes)
         {
-            if (Vector2.Distance(new Vector2(node.x, node.y), pos) <= threshold)
+            if (Vector2.Distance(new Vector2(node.x, node.y), localPos) <= threshold)
                 return node;
         }
         return null;
@@ -117,12 +175,22 @@ public class MapDrawer : MonoBehaviour
         if (!b.neighbors.Contains(a.id)) b.neighbors.Add(a.id);
     }
 
+    private Vector2 LocalToGUIPoint(Vector2 local)
+    {
+        if (mapRoot == null)
+            return local;
+        Vector2 screen = RectTransformUtility.WorldToScreenPoint(null, mapRoot.TransformPoint(local));
+        screen.y = Screen.height - screen.y;
+        return screen;
+    }
+
     private void DrawNodes()
     {
         foreach (var node in nodes)
         {
-            Rect r = new Rect(node.x - 10, node.y - 10, 20, 20);
-            GUI.color = Color.cyan;
+            Vector2 guiPos = LocalToGUIPoint(new Vector2(node.x, node.y));
+            Rect r = new Rect(guiPos.x - 10, guiPos.y - 10, 20, 20);
+            GUI.color = node == selectedNode ? Color.yellow : Color.cyan;
             GUI.DrawTexture(r, Texture2D.whiteTexture);
             GUI.color = Color.white;
             GUI.Label(r, node.id.ToString());
@@ -147,11 +215,14 @@ public class MapDrawer : MonoBehaviour
 
     private void DrawLine(Vector2 a, Vector2 b)
     {
+        Vector2 guiA = LocalToGUIPoint(a);
+        Vector2 guiB = LocalToGUIPoint(b);
+
         Matrix4x4 matrix = GUI.matrix;
-        float angle = Vector3.Angle(b - a, Vector2.right);
-        if (a.y > b.y) angle = -angle;
-        GUIUtility.RotateAroundPivot(angle, a);
-        GUI.DrawTexture(new Rect(a.x, a.y, (b - a).magnitude, 2), lineTex);
+        float angle = Vector3.Angle(guiB - guiA, Vector2.right);
+        if (guiA.y > guiB.y) angle = -angle;
+        GUIUtility.RotateAroundPivot(angle, guiA);
+        GUI.DrawTexture(new Rect(guiA.x, guiA.y, (guiB - guiA).magnitude, 2), lineTex);
         GUI.matrix = matrix;
     }
 

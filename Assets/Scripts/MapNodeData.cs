@@ -8,6 +8,7 @@ public class MapNodeData
     public float x;
     public float y;
     public string route;
+    public string name;
     public List<int> neighbors;
     public bool hasTreasure = false;
     public List<string> thiefFootprints = new List<string>();
