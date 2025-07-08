@@ -75,6 +75,7 @@ public class MapEditorWindow : EditorWindow
                     x = pos.x,
                     y = pos.y,
                     route = routeName,
+                    name = "Node " + nextId,
                     neighbors = new List<int>()
                 };
                 nodes.Add(current);
