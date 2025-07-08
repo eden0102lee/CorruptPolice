@@ -23,6 +23,9 @@ public class MapDrawer : MonoBehaviour
     private bool draggingNode = false;
     private Texture2D lineTex;
     private bool isDrawing = false;
+    private bool isEditing = false;
+    private bool isPreviewing = false;
+    private MapManager mapManager;
 
     void Start()
     {
@@ -30,16 +33,21 @@ public class MapDrawer : MonoBehaviour
         lineTex = new Texture2D(1, 1);
         lineTex.SetPixel(0, 0, Color.cyan);
         lineTex.Apply();
+        mapManager = MapManager.Instance;
         LoadMapIfExists();
     }
 
     void Update()
     {
+        if (isPreviewing)
+        {
+            return;
+        }
         if (isDrawing)
         {
             HandleDrawingInput();
         }
-        else
+        else if (isEditing)
         {
             HandleEditInput();
         }
@@ -120,13 +128,13 @@ public class MapDrawer : MonoBehaviour
         if (background != null)
             GUI.DrawTexture(drawRect, background, ScaleMode.StretchToFill);
 
-        GUILayout.BeginArea(new Rect(5, 5, 300, 160), GUI.skin.box);
+        GUILayout.BeginArea(new Rect(5, 5, 300, 240), GUI.skin.box);
         GUILayout.Label("Map Name");
         mapName = GUILayout.TextField(mapName);
         routeName = GUILayout.TextField(routeName);
         startIndex = int.TryParse(GUILayout.TextField(startIndex.ToString()), out var si) ? si : startIndex;
         mergeThreshold = float.TryParse(GUILayout.TextField(mergeThreshold.ToString()), out var mt) ? mt : mergeThreshold;
-        if (!isDrawing && GUILayout.Button("Start Drawing"))
+        if (!isDrawing && !isEditing && !isPreviewing && GUILayout.Button("Start Drawing"))
         {
             nodes.Clear();
             nextId = startIndex;
@@ -139,24 +147,54 @@ public class MapDrawer : MonoBehaviour
             isDrawing = false;
             ExportJson();
         }
+        if (!isDrawing && !isEditing && !isPreviewing && GUILayout.Button("Edit Nodes"))
+        {
+            isEditing = true;
+            selectedNode = null;
+        }
+        else if (isEditing && GUILayout.Button("Save"))
+        {
+            isEditing = false;
+            selectedNode = null;
+            ExportJson();
+        }
+        if (!isDrawing && !isEditing && !isPreviewing && GUILayout.Button("Preview"))
+        {
+            EnterPreview();
+        }
+        else if (isPreviewing && GUILayout.Button("End Preview"))
+        {
+            ExitPreview();
+        }
         if (GUILayout.Button("Clear"))
         {
             nodes.Clear();
             nextId = startIndex;
             lastNode = null;
+            selectedNode = null;
         }
         GUILayout.EndArea();
         if (selectedNode != null)
         {
-            GUILayout.BeginArea(new Rect(5, 170, 300, 120), GUI.skin.box);
+            GUILayout.BeginArea(new Rect(5, 250, 300, 180), GUI.skin.box);
             GUILayout.Label($"Editing Node {selectedNode.id}");
+            int newId = int.TryParse(GUILayout.TextField(selectedNode.id.ToString()), out var nid) ? nid : selectedNode.id;
+            float newX = float.TryParse(GUILayout.TextField(selectedNode.x.ToString()), out var nx) ? nx : selectedNode.x;
+            float newY = float.TryParse(GUILayout.TextField(selectedNode.y.ToString()), out var ny) ? ny : selectedNode.y;
             selectedNode.name = GUILayout.TextField(selectedNode.name);
             selectedNode.route = GUILayout.TextField(selectedNode.route);
+            if (newId != selectedNode.id)
+                UpdateNodeId(selectedNode, newId);
+            selectedNode.x = newX;
+            selectedNode.y = newY;
             GUILayout.EndArea();
         }
 
-        DrawConnections();
-        DrawNodes();
+        if (!isPreviewing)
+        {
+            DrawConnections();
+            DrawNodes();
+        }
     }
 
     private MapNodeData FindNearbyNode(Vector2 localPos, float threshold)
@@ -226,6 +264,25 @@ public class MapDrawer : MonoBehaviour
         GUI.matrix = matrix;
     }
 
+    private void UpdateNodeId(MapNodeData node, int newId)
+    {
+        int oldId = node.id;
+        if (nodes.Exists(n => n.id == newId && n != node))
+            return;
+
+        foreach (var n in nodes)
+        {
+            for (int i = 0; i < n.neighbors.Count; i++)
+            {
+                if (n.neighbors[i] == oldId)
+                    n.neighbors[i] = newId;
+            }
+        }
+
+        node.id = newId;
+        if (newId >= nextId) nextId = newId + 1;
+    }
+
     private void ExportJson()
     {
         var data = new MapData { nodes = new List<MapNodeData>(nodes) };
@@ -266,5 +323,41 @@ public class MapDrawer : MonoBehaviour
             lastNode = null;
         }
 #endif
+    }
+
+    private void EnterPreview()
+    {
+        if (mapManager == null)
+            mapManager = MapManager.Instance != null ? MapManager.Instance : FindObjectOfType<MapManager>();
+        if (mapManager == null) return;
+        string json = JsonUtility.ToJson(new MapData { nodes = new List<MapNodeData>(nodes) }, true);
+        mapManager.mapJsonFile = new TextAsset(json);
+        mapManager.LoadAndBuildMap();
+        isPreviewing = true;
+    }
+
+    private void ExitPreview()
+    {
+        if (mapManager == null)
+            mapManager = MapManager.Instance != null ? MapManager.Instance : FindObjectOfType<MapManager>();
+        if (mapManager != null)
+        {
+            foreach (var node in nodes)
+            {
+                GameObject go = mapManager.GetNodeObject(node.id);
+                if (go != null)
+                {
+                    RectTransform r = go.GetComponent<RectTransform>();
+                    if (r != null)
+                    {
+                        node.x = r.anchoredPosition.x;
+                        node.y = r.anchoredPosition.y;
+                    }
+                }
+            }
+            mapManager.ClearLoadedMap();
+        }
+        isPreviewing = false;
+        ExportJson();
     }
 }
