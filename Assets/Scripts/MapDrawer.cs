@@ -1,10 +1,15 @@
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 public class MapDrawer : MonoBehaviour
 {
     public Texture2D background;
+    public RectTransform drawArea;
+    public string mapName = "test_map";
     public string routeName = "A";
     public int startIndex = 1;
     public float mergeThreshold = 10f;
@@ -13,6 +18,7 @@ public class MapDrawer : MonoBehaviour
     private int nextId;
     private MapNodeData lastNode;
     private Texture2D lineTex;
+    private bool isDrawing = false;
 
     void Start()
     {
@@ -20,12 +26,18 @@ public class MapDrawer : MonoBehaviour
         lineTex = new Texture2D(1, 1);
         lineTex.SetPixel(0, 0, Color.cyan);
         lineTex.Apply();
+        LoadMapIfExists();
     }
 
     void Update()
     {
+        if (!isDrawing) return;
         if (Input.GetMouseButtonDown(0))
         {
+            if (drawArea != null &&
+                !RectTransformUtility.RectangleContainsScreenPoint(drawArea, Input.mousePosition))
+                return;
+
             Vector2 pos = Input.mousePosition;
             pos.y = Screen.height - pos.y;
             MapNodeData current = FindNearbyNode(pos, mergeThreshold);
@@ -58,24 +70,30 @@ public class MapDrawer : MonoBehaviour
         if (background != null)
             GUI.DrawTexture(drawRect, background, ScaleMode.StretchToFill);
 
-        GUILayout.BeginArea(new Rect(5, 5, 200, 140), GUI.skin.box);
+        GUILayout.BeginArea(new Rect(5, 5, 300, 160), GUI.skin.box);
+        GUILayout.Label("Map Name");
+        mapName = GUILayout.TextField(mapName);
         routeName = GUILayout.TextField(routeName);
         startIndex = int.TryParse(GUILayout.TextField(startIndex.ToString()), out var si) ? si : startIndex;
         mergeThreshold = float.TryParse(GUILayout.TextField(mergeThreshold.ToString()), out var mt) ? mt : mergeThreshold;
-        if (GUILayout.Button("Start Route"))
+        if (!isDrawing && GUILayout.Button("Start Drawing"))
         {
+            nodes.Clear();
             nextId = startIndex;
             lastNode = null;
+            LoadMapIfExists();
+            isDrawing = true;
+        }
+        else if (isDrawing && GUILayout.Button("Stop Drawing"))
+        {
+            isDrawing = false;
+            ExportJson();
         }
         if (GUILayout.Button("Clear"))
         {
             nodes.Clear();
             nextId = startIndex;
             lastNode = null;
-        }
-        if (GUILayout.Button("Export JSON"))
-        {
-            ExportJson();
         }
         GUILayout.EndArea();
 
@@ -140,8 +158,42 @@ public class MapDrawer : MonoBehaviour
     private void ExportJson()
     {
         var data = new MapData { nodes = new List<MapNodeData>(nodes) };
-        string path = Path.Combine(Application.persistentDataPath, "map.json");
+#if UNITY_EDITOR
+        string dir = Path.Combine(Application.dataPath, "Resources/Map");
+        if (!Directory.Exists(dir)) Directory.CreateDirectory(dir);
+        string path = Path.Combine(dir, mapName + ".json");
+        if (File.Exists(path))
+        {
+            if (!UnityEditor.EditorUtility.DisplayDialog("Overwrite?",
+                $"Map '{mapName}' already exists. Overwrite?", "Yes", "No"))
+            {
+                path = UnityEditor.EditorUtility.SaveFilePanel("Save Map As", dir, mapName, "json");
+            }
+        }
+        if (!string.IsNullOrEmpty(path))
+        {
+            File.WriteAllText(path, JsonUtility.ToJson(data, true));
+            UnityEditor.AssetDatabase.Refresh();
+            Debug.Log("Map saved to " + path);
+        }
+#else
+        string path = Path.Combine(Application.persistentDataPath, mapName + ".json");
         File.WriteAllText(path, JsonUtility.ToJson(data, true));
         Debug.Log("Map saved to " + path);
+#endif
+    }
+
+    private void LoadMapIfExists()
+    {
+#if UNITY_EDITOR
+        TextAsset asset = Resources.Load<TextAsset>("Map/" + mapName);
+        if (asset != null)
+        {
+            MapData data = JsonUtility.FromJson<MapData>(asset.text);
+            nodes = new List<MapNodeData>(data.nodes);
+            nextId = nodes.Count > 0 ? nodes[nodes.Count - 1].id + 1 : startIndex;
+            lastNode = null;
+        }
+#endif
     }
 }
