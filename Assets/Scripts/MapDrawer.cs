@@ -132,7 +132,7 @@ public class MapDrawer : MonoBehaviour
         if (background != null)
             GUI.DrawTexture(drawRect, background, ScaleMode.StretchToFill);
 
-        GUILayout.BeginArea(new Rect(5, 5, 300, 200), GUI.skin.box);
+        GUILayout.BeginArea(new Rect(5, 5, 300, 300), GUI.skin.box);
         GUILayout.Label("Map Name");
         mapName = GUILayout.TextField(mapName);
         routeName = GUILayout.TextField(routeName);
