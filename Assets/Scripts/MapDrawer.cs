@@ -10,6 +10,7 @@ public class MapDrawer : MonoBehaviour
     public Texture2D background;
     public RectTransform drawArea;
     public RectTransform mapRoot;
+
     public string mapName = "test_map";
     public string routeName = "A";
     public int startIndex = 1;
@@ -145,7 +146,6 @@ public class MapDrawer : MonoBehaviour
             lastNode = null;
         }
         GUILayout.EndArea();
-
         if (selectedNode != null)
         {
             GUILayout.BeginArea(new Rect(5, 170, 300, 120), GUI.skin.box);
