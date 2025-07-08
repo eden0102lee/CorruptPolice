@@ -23,6 +23,7 @@ public class MapDrawer : MonoBehaviour
     private bool draggingNode = false;
     private Texture2D lineTex;
     private bool isDrawing = false;
+    private bool isEditing = false;
 
     void Start()
     {
@@ -39,7 +40,7 @@ public class MapDrawer : MonoBehaviour
         {
             HandleDrawingInput();
         }
-        else
+        else if (isEditing)
         {
             HandleEditInput();
         }
@@ -120,13 +121,13 @@ public class MapDrawer : MonoBehaviour
         if (background != null)
             GUI.DrawTexture(drawRect, background, ScaleMode.StretchToFill);
 
-        GUILayout.BeginArea(new Rect(5, 5, 300, 160), GUI.skin.box);
+        GUILayout.BeginArea(new Rect(5, 5, 300, 200), GUI.skin.box);
         GUILayout.Label("Map Name");
         mapName = GUILayout.TextField(mapName);
         routeName = GUILayout.TextField(routeName);
         startIndex = int.TryParse(GUILayout.TextField(startIndex.ToString()), out var si) ? si : startIndex;
         mergeThreshold = float.TryParse(GUILayout.TextField(mergeThreshold.ToString()), out var mt) ? mt : mergeThreshold;
-        if (!isDrawing && GUILayout.Button("Start Drawing"))
+        if (!isDrawing && !isEditing && GUILayout.Button("Start Drawing"))
         {
             nodes.Clear();
             nextId = startIndex;
@@ -139,19 +140,38 @@ public class MapDrawer : MonoBehaviour
             isDrawing = false;
             ExportJson();
         }
+        if (!isDrawing && !isEditing && GUILayout.Button("Edit Nodes"))
+        {
+            isEditing = true;
+            selectedNode = null;
+        }
+        else if (isEditing && GUILayout.Button("Save"))
+        {
+            isEditing = false;
+            selectedNode = null;
+            ExportJson();
+        }
         if (GUILayout.Button("Clear"))
         {
             nodes.Clear();
             nextId = startIndex;
             lastNode = null;
+            selectedNode = null;
         }
         GUILayout.EndArea();
         if (selectedNode != null)
         {
-            GUILayout.BeginArea(new Rect(5, 170, 300, 120), GUI.skin.box);
+            GUILayout.BeginArea(new Rect(5, 210, 300, 180), GUI.skin.box);
             GUILayout.Label($"Editing Node {selectedNode.id}");
+            int newId = int.TryParse(GUILayout.TextField(selectedNode.id.ToString()), out var nid) ? nid : selectedNode.id;
+            float newX = float.TryParse(GUILayout.TextField(selectedNode.x.ToString()), out var nx) ? nx : selectedNode.x;
+            float newY = float.TryParse(GUILayout.TextField(selectedNode.y.ToString()), out var ny) ? ny : selectedNode.y;
             selectedNode.name = GUILayout.TextField(selectedNode.name);
             selectedNode.route = GUILayout.TextField(selectedNode.route);
+            if (newId != selectedNode.id)
+                UpdateNodeId(selectedNode, newId);
+            selectedNode.x = newX;
+            selectedNode.y = newY;
             GUILayout.EndArea();
         }
 
@@ -224,6 +244,25 @@ public class MapDrawer : MonoBehaviour
         GUIUtility.RotateAroundPivot(angle, guiA);
         GUI.DrawTexture(new Rect(guiA.x, guiA.y, (guiB - guiA).magnitude, 2), lineTex);
         GUI.matrix = matrix;
+    }
+
+    private void UpdateNodeId(MapNodeData node, int newId)
+    {
+        int oldId = node.id;
+        if (nodes.Exists(n => n.id == newId && n != node))
+            return;
+
+        foreach (var n in nodes)
+        {
+            for (int i = 0; i < n.neighbors.Count; i++)
+            {
+                if (n.neighbors[i] == oldId)
+                    n.neighbors[i] = newId;
+            }
+        }
+
+        node.id = newId;
+        if (newId >= nextId) nextId = newId + 1;
     }
 
     private void ExportJson()
