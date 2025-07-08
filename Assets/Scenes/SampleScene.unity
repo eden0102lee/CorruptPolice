@@ -897,14 +897,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e4e718170180b47448fc09cb5bff945b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxRounds: 12
+  maxRounds: 3
   currentRound: 1
   stepsPerTurn: 2
+  treasureGoal: 3
   policeTeamCount: 3
   regularPoliceCount: 8
   corruptPoliceCount: 2
   thiefCount: 2
-  treasureGoal: 3
 --- !u!4 &434212902
 Transform:
   m_ObjectHideFlags: 0
@@ -4912,6 +4912,7 @@ MonoBehaviour:
   nodeParent: {fileID: 1615605964}
   pieceUIParent: {fileID: 1315230129}
   pieceUIPrefab: {fileID: 5634936368158693331, guid: a66c9ab64dc46f943a35161af23cb457, type: 3}
+  treasureCount: 20
 --- !u!1 &1509109454
 GameObject:
   m_ObjectHideFlags: 0
