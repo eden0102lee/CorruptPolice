@@ -34,6 +34,8 @@ public class MapManager : MonoBehaviour
     public Transform pieceUIParent;
     public GameObject pieceUIPrefab;
 
+    [Tooltip("Automatically build map on Start")] public bool autoBuildOnStart = true;
+
     [Header("Treasure Settings")]
     [Tooltip("Number of treasures placed in each game")] public int treasureCount = 20;
 
@@ -62,6 +64,14 @@ public class MapManager : MonoBehaviour
     void Start()
     {
         treasureLogPath = Path.Combine(Application.persistentDataPath, "treasure_log.json");
+        if (autoBuildOnStart)
+        {
+            BuildMap();
+        }
+    }
+
+    public void BuildMap()
+    {
         LoadAndBuildMap();
         if (PlayerTokenManager.Instance != null && GameManager.Instance != null)
         {
