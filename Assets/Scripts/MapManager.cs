@@ -78,13 +78,6 @@ public class MapManager : MonoBehaviour
         }
 
         MapData mapData = JsonUtility.FromJson<MapData>(mapJsonFile.text);
-        // shift IDs so numbering starts at 1
-        foreach (var node in mapData.nodes)
-        {
-            node.id += 1;
-            for (int i = 0; i < node.neighbors.Count; i++)
-                node.neighbors[i] += 1;
-        }
 
         // Place treasures so that they are at least two nodes apart
         int treasureTotal = Mathf.Min(treasureCount, mapData.nodes.Count);
