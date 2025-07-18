@@ -62,6 +62,14 @@ public class GameManager : MonoBehaviour
             BeginPlacement();
     }
 
+    void Start()
+    {
+        if (MapManager.Instance != null && !MapManager.Instance.autoBuildOnStart)
+        {
+            MapManager.Instance.BuildMap();
+        }
+    }
+
     void InitializeTeams()
     {
         policeTeams = new List<List<PlayerData>>();
