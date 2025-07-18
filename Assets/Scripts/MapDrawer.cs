@@ -39,10 +39,6 @@ public class MapDrawer : MonoBehaviour
 
     void Update()
     {
-        if (isPreviewing)
-        {
-            return;
-        }
         if (isDrawing)
         {
             HandleDrawingInput();
@@ -89,6 +85,9 @@ public class MapDrawer : MonoBehaviour
             }
 
             lastNode = current;
+
+            if (isPreviewing)
+                BuildPreview();
         }
     }
 
@@ -109,6 +108,16 @@ public class MapDrawer : MonoBehaviour
             Vector2 localPos = ScreenToLocal(Input.mousePosition);
             selectedNode.x = localPos.x;
             selectedNode.y = localPos.y;
+            if (mapManager != null && isPreviewing)
+            {
+                GameObject go = mapManager.GetNodeObject(selectedNode.id);
+                if (go != null)
+                {
+                    RectTransform r = go.GetComponent<RectTransform>();
+                    if (r != null)
+                        r.anchoredPosition = localPos;
+                }
+            }
         }
         else if (Input.GetMouseButtonUp(0))
         {
@@ -143,36 +152,30 @@ public class MapDrawer : MonoBehaviour
         {
             LoadMapIfExists();
         }
-        if (!isDrawing && !isEditing && !isPreviewing && GUILayout.Button("Start Drawing"))
+        if (!isDrawing && !isEditing && GUILayout.Button("Start Drawing"))
         {
             nodes.Clear();
             nextId = startIndex;
             lastNode = null;
             LoadMapIfExists();
             isDrawing = true;
+            EnterPreview();
         }
         else if (isDrawing && GUILayout.Button("Stop Drawing"))
         {
             isDrawing = false;
-            ExportJson();
+            ExitPreview();
         }
-        if (!isDrawing && !isEditing && !isPreviewing && GUILayout.Button("Edit Nodes"))
+        if (!isDrawing && !isEditing && GUILayout.Button("Edit Nodes"))
         {
             isEditing = true;
             selectedNode = null;
+            EnterPreview();
         }
         else if (isEditing && GUILayout.Button("Save"))
         {
             isEditing = false;
             selectedNode = null;
-            ExportJson();
-        }
-        if (!isDrawing && !isEditing && !isPreviewing && GUILayout.Button("Preview"))
-        {
-            EnterPreview();
-        }
-        else if (isPreviewing && GUILayout.Button("End Preview"))
-        {
             ExitPreview();
         }
         if (GUILayout.Button("Clear"))
@@ -181,6 +184,8 @@ public class MapDrawer : MonoBehaviour
             nextId = startIndex;
             lastNode = null;
             selectedNode = null;
+            if (isPreviewing)
+                BuildPreview();
         }
         GUILayout.EndArea();
         if (selectedNode != null)
@@ -193,19 +198,35 @@ public class MapDrawer : MonoBehaviour
             selectedNode.name = GUILayout.TextField(selectedNode.name);
             selectedNode.route = GUILayout.TextField(selectedNode.route);
             if (newId != selectedNode.id)
+            {
                 UpdateNodeId(selectedNode, newId);
+                if (isPreviewing)
+                    BuildPreview();
+            }
             selectedNode.x = newX;
             selectedNode.y = newY;
+            if (mapManager != null && isPreviewing)
+            {
+                GameObject go = mapManager.GetNodeObject(selectedNode.id);
+                if (go != null)
+                {
+                    RectTransform r = go.GetComponent<RectTransform>();
+                    if (r != null)
+                        r.anchoredPosition = new Vector2(selectedNode.x, selectedNode.y);
+                }
+            }
             if (GUILayout.Button("Delete Node"))
             {
                 RemoveNode(selectedNode);
+                if (isPreviewing)
+                    BuildPreview();
             }
             GUILayout.EndArea();
         }
 
+        DrawConnections();
         if (!isPreviewing)
         {
-            DrawConnections();
             DrawNodes();
         }
     }
@@ -294,6 +315,8 @@ public class MapDrawer : MonoBehaviour
 
         node.id = newId;
         if (newId >= nextId) nextId = newId + 1;
+        if (isPreviewing)
+            BuildPreview();
     }
 
     private void RemoveNode(MapNodeData node)
@@ -304,6 +327,8 @@ public class MapDrawer : MonoBehaviour
             n.neighbors.Remove(node.id);
         if (lastNode == node) lastNode = null;
         if (selectedNode == node) selectedNode = null;
+        if (isPreviewing)
+            BuildPreview();
     }
 
     private void ExportJson()
@@ -348,15 +373,21 @@ public class MapDrawer : MonoBehaviour
 #endif
     }
 
-    private void EnterPreview()
+    private void BuildPreview()
     {
         if (mapManager == null)
             mapManager = MapManager.Instance != null ? MapManager.Instance : FindObjectOfType<MapManager>();
         if (mapManager == null) return;
+        mapManager.ClearLoadedMap();
         string json = JsonUtility.ToJson(new MapData { nodes = new List<MapNodeData>(nodes) }, true);
         mapManager.mapJsonFile = new TextAsset(json);
         mapManager.LoadAndBuildMap();
         isPreviewing = true;
+    }
+
+    private void EnterPreview()
+    {
+        BuildPreview();
     }
 
     private void ExitPreview()
