@@ -32,7 +32,6 @@ public class MapDrawer : MonoBehaviour
     private readonly List<UILine> connectionLines = new();
     private bool isDrawing = false;
     private bool isEditing = false;
-    private bool isPreviewing = false;
     private MapManager mapManager;
 
     void Start()
@@ -91,7 +90,6 @@ public class MapDrawer : MonoBehaviour
 
             lastNode = current;
 
-            if (isPreviewing)
                 BuildPreview();
         }
     }
@@ -115,7 +113,7 @@ public class MapDrawer : MonoBehaviour
             Vector2 localPos = ScreenToLocal(Input.mousePosition);
             selectedNode.x = localPos.x;
             selectedNode.y = localPos.y;
-            if (mapManager != null && isPreviewing)
+            if (mapManager != null)
             {
                 GameObject go = mapManager.GetNodeObject(selectedNode.id);
                 if (go != null)
@@ -148,11 +146,14 @@ public class MapDrawer : MonoBehaviour
         if (background != null)
             GUI.DrawTexture(drawRect, background, ScaleMode.StretchToFill);
 
-        GUILayout.BeginArea(new Rect(5, 5, 300, 300), GUI.skin.box);
+        GUILayout.BeginArea(new Rect(5, 5, 300, 500), GUI.skin.box);
         GUILayout.Label("Map Name");
         mapName = GUILayout.TextField(mapName);
+        GUILayout.Label("Route Name");
         routeName = GUILayout.TextField(routeName);
+        GUILayout.Label("Start Index");
         startIndex = int.TryParse(GUILayout.TextField(startIndex.ToString()), out var si) ? si : startIndex;
+        GUILayout.Label("Merge Threshold");
         mergeThreshold = float.TryParse(GUILayout.TextField(mergeThreshold.ToString()), out var mt) ? mt : mergeThreshold;
         autoMerge = GUILayout.Toggle(autoMerge, "Auto Merge Nodes");
 
@@ -196,13 +197,12 @@ public class MapDrawer : MonoBehaviour
             lastNode = null;
             selectedNode = null;
             neighborEditString = string.Empty;
-            if (isPreviewing)
                 BuildPreview();
         }
         GUILayout.EndArea();
         if (selectedNode != null)
         {
-            GUILayout.BeginArea(new Rect(5, 210, 300, 220), GUI.skin.box);
+            GUILayout.BeginArea(new Rect(5, 210, 300, 500), GUI.skin.box);
             GUILayout.Label($"Editing Node {selectedNode.id}");
             GUILayout.Label("ID");
             int newId = int.TryParse(GUILayout.TextField(selectedNode.id.ToString()), out var nid) ? nid : selectedNode.id;
@@ -224,12 +224,11 @@ public class MapDrawer : MonoBehaviour
             if (newId != selectedNode.id)
             {
                 UpdateNodeId(selectedNode, newId);
-                if (isPreviewing)
                     BuildPreview();
             }
             selectedNode.x = newX;
             selectedNode.y = newY;
-            if (mapManager != null && isPreviewing)
+            if (mapManager != null )
             {
                 GameObject go = mapManager.GetNodeObject(selectedNode.id);
                 if (go != null)
@@ -242,14 +241,12 @@ public class MapDrawer : MonoBehaviour
             if (GUILayout.Button("Delete Node"))
             {
                 RemoveNode(selectedNode);
-                if (isPreviewing)
                     BuildPreview();
             }
             GUILayout.EndArea();
         }
 
         DrawConnections();
-        //if (!isPreviewing) DrawNodes();
     }
 
     private MapNodeData FindNearbyNode(Vector2 localPos, float threshold)
@@ -343,7 +340,6 @@ public class MapDrawer : MonoBehaviour
 
         node.id = newId;
         if (newId >= nextId) nextId = newId + 1;
-        if (isPreviewing)
             BuildPreview();
     }
 
@@ -359,7 +355,6 @@ public class MapDrawer : MonoBehaviour
             selectedNode = null;
             neighborEditString = string.Empty;
         }
-        if (isPreviewing)
             BuildPreview();
     }
 
@@ -393,7 +388,6 @@ public class MapDrawer : MonoBehaviour
         }
 
         node.neighbors = newList;
-        if (isPreviewing)
             BuildPreview();
     }
 
@@ -450,7 +444,6 @@ public class MapDrawer : MonoBehaviour
         mapManager.mapJsonFile = new TextAsset(json);
         mapManager.LoadAndBuildMap();
         DrawConnections();
-        isPreviewing = true;
     }
 
     private void EnterPreview()
@@ -480,7 +473,6 @@ public class MapDrawer : MonoBehaviour
             mapManager.ClearLoadedMap();
         }
         ClearLines();
-        isPreviewing = false;
         ExportJson();
     }
 }
