@@ -16,6 +16,7 @@ public class MapDrawer : MonoBehaviour
     public string routeName = "A";
     public int startIndex = 1;
     public float mergeThreshold = 10f;
+    public bool autoMerge = true;
 
     private List<MapNodeData> nodes = new();
     private int nextId;
@@ -23,6 +24,8 @@ public class MapDrawer : MonoBehaviour
     private MapNodeData selectedNode;
     private bool draggingNode = false;
     public float lineWidth = 2f;
+
+    private string neighborEditString = string.Empty;
 
     public RouteColorConfig routeColorConfig;
 
@@ -65,7 +68,7 @@ public class MapDrawer : MonoBehaviour
 
             Vector2 localPos = ScreenToLocal(Input.mousePosition);
 
-            MapNodeData current = FindNearbyNode(localPos, mergeThreshold);
+            MapNodeData current = autoMerge ? FindNearbyNode(localPos, mergeThreshold) : null;
             if (current == null)
             {
                 current = new MapNodeData
@@ -103,6 +106,8 @@ public class MapDrawer : MonoBehaviour
 
             Vector2 localPos = ScreenToLocal(Input.mousePosition);
             selectedNode = FindNearbyNode(localPos, mergeThreshold);
+            if (selectedNode != null)
+                neighborEditString = string.Join(",", selectedNode.neighbors);
             draggingNode = selectedNode != null;
         }
         else if (Input.GetMouseButton(0) && draggingNode && selectedNode != null)
@@ -149,6 +154,7 @@ public class MapDrawer : MonoBehaviour
         routeName = GUILayout.TextField(routeName);
         startIndex = int.TryParse(GUILayout.TextField(startIndex.ToString()), out var si) ? si : startIndex;
         mergeThreshold = float.TryParse(GUILayout.TextField(mergeThreshold.ToString()), out var mt) ? mt : mergeThreshold;
+        autoMerge = GUILayout.Toggle(autoMerge, "Auto Merge Nodes");
 
         if (!isDrawing && !isEditing && GUILayout.Button("Load Map"))
         {
@@ -173,12 +179,14 @@ public class MapDrawer : MonoBehaviour
         {
             isEditing = true;
             selectedNode = null;
+            neighborEditString = string.Empty;
             EnterPreview();
         }
         else if (isEditing && GUILayout.Button("Save"))
         {
             isEditing = false;
             selectedNode = null;
+            neighborEditString = string.Empty;
             ExitPreview();
         }
         if (GUILayout.Button("Clear"))
@@ -187,19 +195,32 @@ public class MapDrawer : MonoBehaviour
             nextId = startIndex;
             lastNode = null;
             selectedNode = null;
+            neighborEditString = string.Empty;
             if (isPreviewing)
                 BuildPreview();
         }
         GUILayout.EndArea();
         if (selectedNode != null)
         {
-            GUILayout.BeginArea(new Rect(5, 210, 300, 180), GUI.skin.box);
+            GUILayout.BeginArea(new Rect(5, 210, 300, 220), GUI.skin.box);
             GUILayout.Label($"Editing Node {selectedNode.id}");
+            GUILayout.Label("ID");
             int newId = int.TryParse(GUILayout.TextField(selectedNode.id.ToString()), out var nid) ? nid : selectedNode.id;
+            GUILayout.Label("X");
             float newX = float.TryParse(GUILayout.TextField(selectedNode.x.ToString()), out var nx) ? nx : selectedNode.x;
+            GUILayout.Label("Y");
             float newY = float.TryParse(GUILayout.TextField(selectedNode.y.ToString()), out var ny) ? ny : selectedNode.y;
+            GUILayout.Label("Name");
             selectedNode.name = GUILayout.TextField(selectedNode.name);
+            GUILayout.Label("Route");
             selectedNode.route = GUILayout.TextField(selectedNode.route);
+            GUILayout.Label("Neighbors (comma separated)");
+            string newNeighborStr = GUILayout.TextField(neighborEditString);
+            if (newNeighborStr != neighborEditString)
+            {
+                neighborEditString = newNeighborStr;
+                UpdateNeighborsFromString(selectedNode, neighborEditString);
+            }
             if (newId != selectedNode.id)
             {
                 UpdateNodeId(selectedNode, newId);
@@ -333,7 +354,45 @@ public class MapDrawer : MonoBehaviour
         foreach (var n in nodes)
             n.neighbors.Remove(node.id);
         if (lastNode == node) lastNode = null;
-        if (selectedNode == node) selectedNode = null;
+        if (selectedNode == node)
+        {
+            selectedNode = null;
+            neighborEditString = string.Empty;
+        }
+        if (isPreviewing)
+            BuildPreview();
+    }
+
+    private void UpdateNeighborsFromString(MapNodeData node, string str)
+    {
+        if (node == null) return;
+        var newList = new List<int>();
+        if (!string.IsNullOrEmpty(str))
+        {
+            var parts = str.Split(',');
+            foreach (var p in parts)
+            {
+                if (int.TryParse(p.Trim(), out var id) && id != node.id && !newList.Contains(id))
+                {
+                    newList.Add(id);
+                }
+            }
+        }
+
+        foreach (var n in nodes)
+        {
+            if (n == node) continue;
+            if (newList.Contains(n.id))
+            {
+                if (!n.neighbors.Contains(node.id)) n.neighbors.Add(node.id);
+            }
+            else
+            {
+                n.neighbors.Remove(node.id);
+            }
+        }
+
+        node.neighbors = newList;
         if (isPreviewing)
             BuildPreview();
     }
