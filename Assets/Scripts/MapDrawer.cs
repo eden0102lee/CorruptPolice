@@ -153,6 +153,7 @@ public class MapDrawer : MonoBehaviour
         if (!isDrawing && !isEditing && GUILayout.Button("Load Map"))
         {
             LoadMapIfExists();
+            EnterPreview();
         }
         if (!isDrawing && !isEditing && GUILayout.Button("Start Drawing"))
         {
@@ -227,10 +228,7 @@ public class MapDrawer : MonoBehaviour
         }
 
         DrawConnections();
-        if (!isPreviewing)
-        {
-            DrawNodes();
-        }
+        //if (!isPreviewing) DrawNodes();
     }
 
     private MapNodeData FindNearbyNode(Vector2 localPos, float threshold)
