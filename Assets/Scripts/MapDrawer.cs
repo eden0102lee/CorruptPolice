@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
+using geniikw.DataRenderer2D;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -21,7 +22,11 @@ public class MapDrawer : MonoBehaviour
     private MapNodeData lastNode;
     private MapNodeData selectedNode;
     private bool draggingNode = false;
-    private Texture2D lineTex;
+    public float lineWidth = 2f;
+
+    public RouteColorConfig routeColorConfig;
+
+    private readonly List<UILine> connectionLines = new();
     private bool isDrawing = false;
     private bool isEditing = false;
     private bool isPreviewing = false;
@@ -30,19 +35,12 @@ public class MapDrawer : MonoBehaviour
     void Start()
     {
         nextId = startIndex;
-        lineTex = new Texture2D(1, 1);
-        lineTex.SetPixel(0, 0, Color.cyan);
-        lineTex.Apply();
         mapManager = MapManager.Instance;
         LoadMapIfExists();
     }
 
     void Update()
     {
-        if (isPreviewing)
-        {
-            return;
-        }
         if (isDrawing)
         {
             HandleDrawingInput();
@@ -89,6 +87,9 @@ public class MapDrawer : MonoBehaviour
             }
 
             lastNode = current;
+
+            if (isPreviewing)
+                BuildPreview();
         }
     }
 
@@ -109,6 +110,16 @@ public class MapDrawer : MonoBehaviour
             Vector2 localPos = ScreenToLocal(Input.mousePosition);
             selectedNode.x = localPos.x;
             selectedNode.y = localPos.y;
+            if (mapManager != null && isPreviewing)
+            {
+                GameObject go = mapManager.GetNodeObject(selectedNode.id);
+                if (go != null)
+                {
+                    RectTransform r = go.GetComponent<RectTransform>();
+                    if (r != null)
+                        r.anchoredPosition = localPos;
+                }
+            }
         }
         else if (Input.GetMouseButtonUp(0))
         {
@@ -143,36 +154,30 @@ public class MapDrawer : MonoBehaviour
         {
             LoadMapIfExists();
         }
-        if (!isDrawing && !isEditing && !isPreviewing && GUILayout.Button("Start Drawing"))
+        if (!isDrawing && !isEditing && GUILayout.Button("Start Drawing"))
         {
             nodes.Clear();
             nextId = startIndex;
             lastNode = null;
             LoadMapIfExists();
             isDrawing = true;
+            EnterPreview();
         }
         else if (isDrawing && GUILayout.Button("Stop Drawing"))
         {
             isDrawing = false;
-            ExportJson();
+            ExitPreview();
         }
-        if (!isDrawing && !isEditing && !isPreviewing && GUILayout.Button("Edit Nodes"))
+        if (!isDrawing && !isEditing && GUILayout.Button("Edit Nodes"))
         {
             isEditing = true;
             selectedNode = null;
+            EnterPreview();
         }
         else if (isEditing && GUILayout.Button("Save"))
         {
             isEditing = false;
             selectedNode = null;
-            ExportJson();
-        }
-        if (!isDrawing && !isEditing && !isPreviewing && GUILayout.Button("Preview"))
-        {
-            EnterPreview();
-        }
-        else if (isPreviewing && GUILayout.Button("End Preview"))
-        {
             ExitPreview();
         }
         if (GUILayout.Button("Clear"))
@@ -181,6 +186,8 @@ public class MapDrawer : MonoBehaviour
             nextId = startIndex;
             lastNode = null;
             selectedNode = null;
+            if (isPreviewing)
+                BuildPreview();
         }
         GUILayout.EndArea();
         if (selectedNode != null)
@@ -193,21 +200,33 @@ public class MapDrawer : MonoBehaviour
             selectedNode.name = GUILayout.TextField(selectedNode.name);
             selectedNode.route = GUILayout.TextField(selectedNode.route);
             if (newId != selectedNode.id)
+            {
                 UpdateNodeId(selectedNode, newId);
+                if (isPreviewing)
+                    BuildPreview();
+            }
             selectedNode.x = newX;
             selectedNode.y = newY;
+            if (mapManager != null && isPreviewing)
+            {
+                GameObject go = mapManager.GetNodeObject(selectedNode.id);
+                if (go != null)
+                {
+                    RectTransform r = go.GetComponent<RectTransform>();
+                    if (r != null)
+                        r.anchoredPosition = new Vector2(selectedNode.x, selectedNode.y);
+                }
+            }
             if (GUILayout.Button("Delete Node"))
             {
                 RemoveNode(selectedNode);
+                if (isPreviewing)
+                    BuildPreview();
             }
             GUILayout.EndArea();
         }
 
-        if (!isPreviewing)
-        {
-            DrawConnections();
-            DrawNodes();
-        }
+        // connections and nodes are displayed via UILine and NodeUI when previewing
     }
 
     private MapNodeData FindNearbyNode(Vector2 localPos, float threshold)
@@ -226,30 +245,27 @@ public class MapDrawer : MonoBehaviour
         if (!b.neighbors.Contains(a.id)) b.neighbors.Add(a.id);
     }
 
-    private Vector2 LocalToGUIPoint(Vector2 local)
+    private Color GetColorForRoute(string route)
     {
-        if (mapRoot == null)
-            return local;
-        Vector2 screen = RectTransformUtility.WorldToScreenPoint(null, mapRoot.TransformPoint(local));
-        screen.y = Screen.height - screen.y;
-        return screen;
+        if (routeColorConfig != null)
+            return routeColorConfig.GetColor(route);
+        return Color.white;
     }
 
-    private void DrawNodes()
+    private void ClearLines()
     {
-        foreach (var node in nodes)
+        foreach (var line in connectionLines)
         {
-            Vector2 guiPos = LocalToGUIPoint(new Vector2(node.x, node.y));
-            Rect r = new Rect(guiPos.x - 10, guiPos.y - 10, 20, 20);
-            GUI.color = node == selectedNode ? Color.yellow : Color.cyan;
-            GUI.DrawTexture(r, Texture2D.whiteTexture);
-            GUI.color = Color.white;
-            GUI.Label(r, node.id.ToString());
+            if (line != null)
+                Destroy(line.gameObject);
         }
+        connectionLines.Clear();
     }
 
     private void DrawConnections()
     {
+        if (mapManager == null) return;
+        ClearLines();
         foreach (var node in nodes)
         {
             foreach (var nId in node.neighbors)
@@ -258,23 +274,33 @@ public class MapDrawer : MonoBehaviour
                 {
                     var other = nodes.Find(n => n.id == nId);
                     if (other != null)
-                        DrawLine(new Vector2(node.x, node.y), new Vector2(other.x, other.y));
+                    {
+                        GameObject startGo = mapManager.GetNodeObject(node.id);
+                        GameObject endGo = mapManager.GetNodeObject(other.id);
+                        if (startGo != null && endGo != null)
+                        {
+                            Transform parent = mapManager.nodeParent != null ? mapManager.nodeParent : mapRoot;
+                            var line = UILine.CreateLine(parent);
+                            line.transform.SetAsFirstSibling();
+                            line.line.Clear();
+                            line.line.Push();
+                            line.line.Push();
+                            Vector3 p0 = startGo.GetComponent<RectTransform>().position;
+                            Vector3 p1 = endGo.GetComponent<RectTransform>().position;
+                            line.line.EditPoint(0, p0, lineWidth);
+                            line.line.EditPoint(1, p1, lineWidth);
+                            Color c = GetColorForRoute(node.route);
+                            var grad = new Gradient();
+                            grad.SetKeys(
+                                new[] { new GradientColorKey(c, 0f), new GradientColorKey(c, 1f) },
+                                new[] { new GradientAlphaKey(c.a, 0f), new GradientAlphaKey(c.a, 1f) });
+                            line.line.option.color = grad;
+                            connectionLines.Add(line);
+                        }
+                    }
                 }
             }
         }
-    }
-
-    private void DrawLine(Vector2 a, Vector2 b)
-    {
-        Vector2 guiA = LocalToGUIPoint(a);
-        Vector2 guiB = LocalToGUIPoint(b);
-
-        Matrix4x4 matrix = GUI.matrix;
-        float angle = Vector3.Angle(guiB - guiA, Vector2.right);
-        if (guiA.y > guiB.y) angle = -angle;
-        GUIUtility.RotateAroundPivot(angle, guiA);
-        GUI.DrawTexture(new Rect(guiA.x, guiA.y, (guiB - guiA).magnitude, 2), lineTex);
-        GUI.matrix = matrix;
     }
 
     private void UpdateNodeId(MapNodeData node, int newId)
@@ -294,6 +320,8 @@ public class MapDrawer : MonoBehaviour
 
         node.id = newId;
         if (newId >= nextId) nextId = newId + 1;
+        if (isPreviewing)
+            BuildPreview();
     }
 
     private void RemoveNode(MapNodeData node)
@@ -304,6 +332,8 @@ public class MapDrawer : MonoBehaviour
             n.neighbors.Remove(node.id);
         if (lastNode == node) lastNode = null;
         if (selectedNode == node) selectedNode = null;
+        if (isPreviewing)
+            BuildPreview();
     }
 
     private void ExportJson()
@@ -348,15 +378,24 @@ public class MapDrawer : MonoBehaviour
 #endif
     }
 
-    private void EnterPreview()
+    private void BuildPreview()
     {
         if (mapManager == null)
             mapManager = MapManager.Instance != null ? MapManager.Instance : FindObjectOfType<MapManager>();
         if (mapManager == null) return;
+
+        ClearLines();
+        mapManager.ClearLoadedMap();
         string json = JsonUtility.ToJson(new MapData { nodes = new List<MapNodeData>(nodes) }, true);
         mapManager.mapJsonFile = new TextAsset(json);
         mapManager.LoadAndBuildMap();
+        DrawConnections();
         isPreviewing = true;
+    }
+
+    private void EnterPreview()
+    {
+        BuildPreview();
     }
 
     private void ExitPreview()
@@ -380,6 +419,7 @@ public class MapDrawer : MonoBehaviour
             }
             mapManager.ClearLoadedMap();
         }
+        ClearLines();
         isPreviewing = false;
         ExportJson();
     }
