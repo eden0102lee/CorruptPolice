@@ -226,7 +226,11 @@ public class MapDrawer : MonoBehaviour
             GUILayout.EndArea();
         }
 
-        // connections and nodes are displayed via UILine and NodeUI when previewing
+        DrawConnections();
+        if (!isPreviewing)
+        {
+            DrawNodes();
+        }
     }
 
     private MapNodeData FindNearbyNode(Vector2 localPos, float threshold)
@@ -383,7 +387,6 @@ public class MapDrawer : MonoBehaviour
         if (mapManager == null)
             mapManager = MapManager.Instance != null ? MapManager.Instance : FindObjectOfType<MapManager>();
         if (mapManager == null) return;
-
         ClearLines();
         mapManager.ClearLoadedMap();
         string json = JsonUtility.ToJson(new MapData { nodes = new List<MapNodeData>(nodes) }, true);
