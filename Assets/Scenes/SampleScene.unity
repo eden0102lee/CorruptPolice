@@ -7065,6 +7065,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1615605964}
     - target: {fileID: 921668033547538937, guid: 880f00822d5b1e54d9c91d6aba215f16, type: 3}
+      propertyPath: mapJsonFile
+      value: 
+      objectReference: {fileID: 4900000, guid: 1c772c6867d49d5439a95fa14e9764b3, type: 3}
+    - target: {fileID: 921668033547538937, guid: 880f00822d5b1e54d9c91d6aba215f16, type: 3}
       propertyPath: pieceUIParent
       value: 
       objectReference: {fileID: 1315230129}

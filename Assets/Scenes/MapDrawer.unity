@@ -1163,6 +1163,10 @@ PrefabInstance:
       propertyPath: drawArea
       value: 
       objectReference: {fileID: 1927060493}
+    - target: {fileID: 1483681271852763272, guid: 8b016bb3093b4df408e996cb2e3dfbe3, type: 3}
+      propertyPath: routeColorConfig
+      value: 
+      objectReference: {fileID: 11400000, guid: 59d9f33991fa4ea6b4319725472d1f0d, type: 2}
     - target: {fileID: 4466325638937810661, guid: 8b016bb3093b4df408e996cb2e3dfbe3, type: 3}
       propertyPath: m_Name
       value: MapDrawer

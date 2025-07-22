@@ -7,7 +7,8 @@
             "route": "A",
             "name": "Node 1",
             "neighbors": [
-                2
+                2,
+                165
             ],
             "hasTreasure": false,
             "thiefFootprints": []
@@ -33,7 +34,8 @@
             "name": "Node 3",
             "neighbors": [
                 2,
-                4
+                4,
+                119
             ],
             "hasTreasure": false,
             "thiefFootprints": []
@@ -46,7 +48,8 @@
             "name": "Node 4",
             "neighbors": [
                 3,
-                5
+                5,
+                81
             ],
             "hasTreasure": false,
             "thiefFootprints": []
@@ -72,7 +75,10 @@
             "name": "Node 6",
             "neighbors": [
                 5,
-                7
+                7,
+                100,
+                101,
+                20
             ],
             "hasTreasure": false,
             "thiefFootprints": []
@@ -113,7 +119,9 @@
             "name": "Node 9",
             "neighbors": [
                 8,
-                10
+                10,
+                84,
+                85
             ],
             "hasTreasure": false,
             "thiefFootprints": []
@@ -139,7 +147,9 @@
             "name": "Node 11",
             "neighbors": [
                 10,
-                12
+                12,
+                163,
+                164
             ],
             "hasTreasure": false,
             "thiefFootprints": []
@@ -152,7 +162,9 @@
             "name": "Node 12",
             "neighbors": [
                 11,
-                13
+                13,
+                145,
+                146
             ],
             "hasTreasure": false,
             "thiefFootprints": []
@@ -178,7 +190,10 @@
             "name": "Node 14",
             "neighbors": [
                 13,
-                15
+                15,
+                105,
+                106,
+                132
             ],
             "hasTreasure": false,
             "thiefFootprints": []
@@ -246,21 +261,23 @@
             "name": "Node 19",
             "neighbors": [
                 18,
-                17
+                17,
+                135
             ],
             "hasTreasure": false,
             "thiefFootprints": []
         },
         {
             "id": 20,
-            "x": -116.0096435546875,
+            "x": -114.594970703125,
             "y": 164.1112060546875,
             "route": "B",
             "name": "Node 20",
             "neighbors": [
                 21,
                 8,
-                62
+                62,
+                6
             ],
             "hasTreasure": false,
             "thiefFootprints": []
@@ -273,7 +290,8 @@
             "name": "Node 21",
             "neighbors": [
                 20,
-                22
+                22,
+                100
             ],
             "hasTreasure": false,
             "thiefFootprints": []
@@ -286,7 +304,10 @@
             "name": "Node 22",
             "neighbors": [
                 21,
-                23
+                23,
+                82,
+                62,
+                99
             ],
             "hasTreasure": false,
             "thiefFootprints": []
@@ -299,7 +320,9 @@
             "name": "Node 23",
             "neighbors": [
                 22,
-                24
+                24,
+                99,
+                118
             ],
             "hasTreasure": false,
             "thiefFootprints": []
@@ -312,7 +335,12 @@
             "name": "Node 24",
             "neighbors": [
                 23,
-                25
+                25,
+                97,
+                98,
+                158,
+                166,
+                167
             ],
             "hasTreasure": false,
             "thiefFootprints": []
@@ -351,7 +379,9 @@
             "name": "Node 27",
             "neighbors": [
                 26,
-                28
+                28,
+                120,
+                121
             ],
             "hasTreasure": false,
             "thiefFootprints": []
@@ -403,7 +433,9 @@
             "name": "Node 31",
             "neighbors": [
                 30,
-                32
+                32,
+                137,
+                138
             ],
             "hasTreasure": false,
             "thiefFootprints": []
@@ -416,7 +448,8 @@
             "name": "Node 32",
             "neighbors": [
                 31,
-                33
+                33,
+                169
             ],
             "hasTreasure": false,
             "thiefFootprints": []
@@ -442,7 +475,9 @@
             "name": "Node 34",
             "neighbors": [
                 33,
-                35
+                35,
+                155,
+                156
             ],
             "hasTreasure": false,
             "thiefFootprints": []
@@ -468,7 +503,8 @@
             "name": "Node 36",
             "neighbors": [
                 35,
-                37
+                37,
+                142
             ],
             "hasTreasure": false,
             "thiefFootprints": []
@@ -481,7 +517,9 @@
             "name": "Node 37",
             "neighbors": [
                 36,
-                38
+                38,
+                171,
+                172
             ],
             "hasTreasure": false,
             "thiefFootprints": []
@@ -507,7 +545,9 @@
             "name": "Node 39",
             "neighbors": [
                 38,
-                40
+                40,
+                175,
+                176
             ],
             "hasTreasure": false,
             "thiefFootprints": []
@@ -574,7 +614,8 @@
             "name": "Node 44",
             "neighbors": [
                 43,
-                45
+                45,
+                91
             ],
             "hasTreasure": false,
             "thiefFootprints": []
@@ -646,13 +687,15 @@
         },
         {
             "id": 50,
-            "x": -623.9057006835938,
-            "y": -332.4667663574219,
+            "x": -629.564697265625,
+            "y": -339.54052734375,
             "route": "B",
             "name": "Node 50",
             "neighbors": [
                 49,
-                51
+                51,
+                134,
+                135
             ],
             "hasTreasure": false,
             "thiefFootprints": []
@@ -717,7 +760,8 @@
             "name": "Node 55",
             "neighbors": [
                 54,
-                56
+                56,
+                107
             ],
             "hasTreasure": false,
             "thiefFootprints": []
@@ -730,7 +774,8 @@
             "name": "Node 56",
             "neighbors": [
                 55,
-                57
+                57,
+                143
             ],
             "hasTreasure": false,
             "thiefFootprints": []
@@ -743,7 +788,9 @@
             "name": "Node 57",
             "neighbors": [
                 56,
-                58
+                58,
+                111,
+                112
             ],
             "hasTreasure": false,
             "thiefFootprints": []
@@ -756,7 +803,9 @@
             "name": "Node 58",
             "neighbors": [
                 57,
-                59
+                59,
+                173,
+                174
             ],
             "hasTreasure": false,
             "thiefFootprints": []
@@ -795,7 +844,9 @@
             "name": "Node 61",
             "neighbors": [
                 60,
-                8
+                8,
+                102,
+                103
             ],
             "hasTreasure": false,
             "thiefFootprints": []
@@ -808,7 +859,9 @@
             "name": "Node 62",
             "neighbors": [
                 20,
-                63
+                63,
+                22,
+                83
             ],
             "hasTreasure": false,
             "thiefFootprints": []
@@ -821,7 +874,9 @@
             "name": "Node 63",
             "neighbors": [
                 62,
-                64
+                64,
+                117,
+                99
             ],
             "hasTreasure": false,
             "thiefFootprints": []
@@ -847,7 +902,9 @@
             "name": "Node 65",
             "neighbors": [
                 64,
-                66
+                66,
+                159,
+                160
             ],
             "hasTreasure": false,
             "thiefFootprints": []
@@ -873,7 +930,8 @@
             "name": "Node 67",
             "neighbors": [
                 66,
-                68
+                68,
+                125
             ],
             "hasTreasure": false,
             "thiefFootprints": []
@@ -899,7 +957,11 @@
             "name": "Node 69",
             "neighbors": [
                 68,
-                70
+                70,
+                126,
+                127,
+                149,
+                150
             ],
             "hasTreasure": false,
             "thiefFootprints": []
@@ -951,7 +1013,8 @@
             "name": "Node 73",
             "neighbors": [
                 72,
-                74
+                74,
+                176
             ],
             "hasTreasure": false,
             "thiefFootprints": []
@@ -964,7 +1027,8 @@
             "name": "Node 74",
             "neighbors": [
                 73,
-                75
+                75,
+                172
             ],
             "hasTreasure": false,
             "thiefFootprints": []
@@ -1041,7 +1105,1287 @@
             "route": "C",
             "name": "Node 80",
             "neighbors": [
-                79
+                79,
+                142
+            ],
+            "hasTreasure": false,
+            "thiefFootprints": []
+        },
+        {
+            "id": 81,
+            "x": 33.9541015625,
+            "y": 290.02410888671877,
+            "route": "D",
+            "name": "Node 81",
+            "neighbors": [
+                4,
+                82
+            ],
+            "hasTreasure": false,
+            "thiefFootprints": []
+        },
+        {
+            "id": 82,
+            "x": 32.539306640625,
+            "y": 229.18975830078126,
+            "route": "D",
+            "name": "Node 82",
+            "neighbors": [
+                81,
+                22
+            ],
+            "hasTreasure": false,
+            "thiefFootprints": []
+        },
+        {
+            "id": 83,
+            "x": -106.1064453125,
+            "y": 100.4473876953125,
+            "route": "D",
+            "name": "Node 83",
+            "neighbors": [
+                62,
+                84
+            ],
+            "hasTreasure": false,
+            "thiefFootprints": []
+        },
+        {
+            "id": 84,
+            "x": -161.28173828125,
+            "y": 99.03265380859375,
+            "route": "D",
+            "name": "Node 84",
+            "neighbors": [
+                83,
+                9
+            ],
+            "hasTreasure": false,
+            "thiefFootprints": []
+        },
+        {
+            "id": 85,
+            "x": -190.99151611328126,
+            "y": 21.22125244140625,
+            "route": "D",
+            "name": "Node 85",
+            "neighbors": [
+                9,
+                86,
+                115,
+                116
+            ],
+            "hasTreasure": false,
+            "thiefFootprints": []
+        },
+        {
+            "id": 86,
+            "x": -176.843994140625,
+            "y": -39.613067626953128,
+            "route": "D",
+            "name": "Node 86",
+            "neighbors": [
+                85,
+                87
+            ],
+            "hasTreasure": false,
+            "thiefFootprints": []
+        },
+        {
+            "id": 87,
+            "x": -165.5260009765625,
+            "y": -91.95889282226563,
+            "route": "D",
+            "name": "Node 87",
+            "neighbors": [
+                86,
+                88
+            ],
+            "hasTreasure": false,
+            "thiefFootprints": []
+        },
+        {
+            "id": 88,
+            "x": -149.9637451171875,
+            "y": -154.2080078125,
+            "route": "D",
+            "name": "Node 88",
+            "neighbors": [
+                87,
+                89,
+                161,
+                162
+            ],
+            "hasTreasure": false,
+            "thiefFootprints": []
+        },
+        {
+            "id": 89,
+            "x": -118.839111328125,
+            "y": -274.4619445800781,
+            "route": "D",
+            "name": "Node 89",
+            "neighbors": [
+                88,
+                90,
+                147,
+                148
+            ],
+            "hasTreasure": false,
+            "thiefFootprints": []
+        },
+        {
+            "id": 90,
+            "x": -155.62274169921876,
+            "y": -338.12579345703127,
+            "route": "D",
+            "name": "Node 90",
+            "neighbors": [
+                89,
+                91,
+                129,
+                130
+            ],
+            "hasTreasure": false,
+            "thiefFootprints": []
+        },
+        {
+            "id": 91,
+            "x": -181.0882568359375,
+            "y": -381.98309326171877,
+            "route": "D",
+            "name": "Node 91",
+            "neighbors": [
+                90,
+                44
+            ],
+            "hasTreasure": false,
+            "thiefFootprints": []
+        },
+        {
+            "id": 92,
+            "x": 655.0302734375,
+            "y": 222.11602783203126,
+            "route": "E",
+            "name": "Node 92",
+            "neighbors": [
+                93,
+                136
+            ],
+            "hasTreasure": false,
+            "thiefFootprints": []
+        },
+        {
+            "id": 93,
+            "x": 578.6336669921875,
+            "y": 223.53076171875,
+            "route": "E",
+            "name": "Node 93",
+            "neighbors": [
+                92,
+                94
+            ],
+            "hasTreasure": false,
+            "thiefFootprints": []
+        },
+        {
+            "id": 94,
+            "x": 507.89599609375,
+            "y": 223.53076171875,
+            "route": "E",
+            "name": "Node 94",
+            "neighbors": [
+                93,
+                95
+            ],
+            "hasTreasure": false,
+            "thiefFootprints": []
+        },
+        {
+            "id": 95,
+            "x": 425.8404541015625,
+            "y": 219.2864990234375,
+            "route": "E",
+            "name": "Node 95",
+            "neighbors": [
+                94,
+                96,
+                120
+            ],
+            "hasTreasure": false,
+            "thiefFootprints": []
+        },
+        {
+            "id": 96,
+            "x": 360.7618408203125,
+            "y": 222.11602783203126,
+            "route": "E",
+            "name": "Node 96",
+            "neighbors": [
+                95,
+                97
+            ],
+            "hasTreasure": false,
+            "thiefFootprints": []
+        },
+        {
+            "id": 97,
+            "x": 288.6094970703125,
+            "y": 224.94549560546876,
+            "route": "E",
+            "name": "Node 97",
+            "neighbors": [
+                96,
+                24
+            ],
+            "hasTreasure": false,
+            "thiefFootprints": []
+        },
+        {
+            "id": 98,
+            "x": 111.765380859375,
+            "y": 97.61785888671875,
+            "route": "E",
+            "name": "Node 98",
+            "neighbors": [
+                24,
+                99
+            ],
+            "hasTreasure": false,
+            "thiefFootprints": []
+        },
+        {
+            "id": 99,
+            "x": 31.12451171875,
+            "y": 99.03265380859375,
+            "route": "E",
+            "name": "Node 99",
+            "neighbors": [
+                98,
+                22,
+                63,
+                23
+            ],
+            "hasTreasure": false,
+            "thiefFootprints": []
+        },
+        {
+            "id": 100,
+            "x": -66.4932861328125,
+            "y": 230.60455322265626,
+            "route": "E",
+            "name": "Node 100",
+            "neighbors": [
+                21,
+                6
+            ],
+            "hasTreasure": false,
+            "thiefFootprints": []
+        },
+        {
+            "id": 101,
+            "x": -185.33251953125,
+            "y": 294.26837158203127,
+            "route": "E",
+            "name": "Node 101",
+            "neighbors": [
+                6,
+                102
+            ],
+            "hasTreasure": false,
+            "thiefFootprints": []
+        },
+        {
+            "id": 102,
+            "x": -237.6783447265625,
+            "y": 297.097900390625,
+            "route": "E",
+            "name": "Node 102",
+            "neighbors": [
+                101,
+                61
+            ],
+            "hasTreasure": false,
+            "thiefFootprints": []
+        },
+        {
+            "id": 103,
+            "x": -308.41595458984377,
+            "y": 97.61785888671875,
+            "route": "E",
+            "name": "Node 103",
+            "neighbors": [
+                61,
+                104
+            ],
+            "hasTreasure": false,
+            "thiefFootprints": []
+        },
+        {
+            "id": 104,
+            "x": -349.44378662109377,
+            "y": 22.635990142822267,
+            "route": "E",
+            "name": "Node 104",
+            "neighbors": [
+                103,
+                105,
+                114,
+                115,
+                164,
+                174
+            ],
+            "hasTreasure": false,
+            "thiefFootprints": []
+        },
+        {
+            "id": 105,
+            "x": -407.4486083984375,
+            "y": -60.8343505859375,
+            "route": "E",
+            "name": "Node 105",
+            "neighbors": [
+                104,
+                14,
+                144,
+                145
+            ],
+            "hasTreasure": false,
+            "thiefFootprints": []
+        },
+        {
+            "id": 106,
+            "x": -520.6287841796875,
+            "y": -46.68682861328125,
+            "route": "E",
+            "name": "Node 106",
+            "neighbors": [
+                14,
+                107
+            ],
+            "hasTreasure": false,
+            "thiefFootprints": []
+        },
+        {
+            "id": 107,
+            "x": -572.974609375,
+            "y": 59.4195556640625,
+            "route": "E",
+            "name": "Node 107",
+            "neighbors": [
+                106,
+                55
+            ],
+            "hasTreasure": false,
+            "thiefFootprints": []
+        },
+        {
+            "id": 108,
+            "x": -577.2188720703125,
+            "y": 495.1632080078125,
+            "route": "F",
+            "name": "Node 108",
+            "neighbors": [
+                109,
+                173
+            ],
+            "hasTreasure": false,
+            "thiefFootprints": []
+        },
+        {
+            "id": 109,
+            "x": -547.5090942382813,
+            "y": 442.8173828125,
+            "route": "F",
+            "name": "Node 109",
+            "neighbors": [
+                108,
+                110
+            ],
+            "hasTreasure": false,
+            "thiefFootprints": []
+        },
+        {
+            "id": 110,
+            "x": -522.0435180664063,
+            "y": 389.0567626953125,
+            "route": "F",
+            "name": "Node 110",
+            "neighbors": [
+                109,
+                111
+            ],
+            "hasTreasure": false,
+            "thiefFootprints": []
+        },
+        {
+            "id": 111,
+            "x": -497.99273681640627,
+            "y": 336.7109375,
+            "route": "F",
+            "name": "Node 111",
+            "neighbors": [
+                110,
+                57
+            ],
+            "hasTreasure": false,
+            "thiefFootprints": []
+        },
+        {
+            "id": 112,
+            "x": -439.9879150390625,
+            "y": 212.2127685546875,
+            "route": "F",
+            "name": "Node 112",
+            "neighbors": [
+                57,
+                113
+            ],
+            "hasTreasure": false,
+            "thiefFootprints": []
+        },
+        {
+            "id": 113,
+            "x": -413.10760498046877,
+            "y": 149.96368408203126,
+            "route": "F",
+            "name": "Node 113",
+            "neighbors": [
+                112,
+                114
+            ],
+            "hasTreasure": false,
+            "thiefFootprints": []
+        },
+        {
+            "id": 114,
+            "x": -383.3978271484375,
+            "y": 89.12939453125,
+            "route": "F",
+            "name": "Node 114",
+            "neighbors": [
+                113,
+                104
+            ],
+            "hasTreasure": false,
+            "thiefFootprints": []
+        },
+        {
+            "id": 115,
+            "x": -287.1947021484375,
+            "y": 25.46551513671875,
+            "route": "F",
+            "name": "Node 115",
+            "neighbors": [
+                104,
+                85
+            ],
+            "hasTreasure": false,
+            "thiefFootprints": []
+        },
+        {
+            "id": 116,
+            "x": -128.742431640625,
+            "y": 19.8065185546875,
+            "route": "F",
+            "name": "Node 116",
+            "neighbors": [
+                85,
+                117
+            ],
+            "hasTreasure": false,
+            "thiefFootprints": []
+        },
+        {
+            "id": 117,
+            "x": -65.07861328125,
+            "y": 22.635986328125,
+            "route": "F",
+            "name": "Node 117",
+            "neighbors": [
+                116,
+                63
+            ],
+            "hasTreasure": false,
+            "thiefFootprints": []
+        },
+        {
+            "id": 118,
+            "x": 118.8392333984375,
+            "y": 233.43402099609376,
+            "route": "F",
+            "name": "Node 118",
+            "neighbors": [
+                23,
+                119
+            ],
+            "hasTreasure": false,
+            "thiefFootprints": []
+        },
+        {
+            "id": 119,
+            "x": 118.8392333984375,
+            "y": 295.68310546875,
+            "route": "F",
+            "name": "Node 119",
+            "neighbors": [
+                118,
+                3
+            ],
+            "hasTreasure": false,
+            "thiefFootprints": []
+        },
+        {
+            "id": 120,
+            "x": 396.130615234375,
+            "y": 168.35546875,
+            "route": "G",
+            "name": "Node 120",
+            "neighbors": [
+                95,
+                27
+            ],
+            "hasTreasure": false,
+            "thiefFootprints": []
+        },
+        {
+            "id": 121,
+            "x": 323.978271484375,
+            "y": 43.8572998046875,
+            "route": "G",
+            "name": "Node 121",
+            "neighbors": [
+                27,
+                122
+            ],
+            "hasTreasure": false,
+            "thiefFootprints": []
+        },
+        {
+            "id": 122,
+            "x": 298.5126953125,
+            "y": -5.6590576171875,
+            "route": "G",
+            "name": "Node 122",
+            "neighbors": [
+                121,
+                123
+            ],
+            "hasTreasure": false,
+            "thiefFootprints": []
+        },
+        {
+            "id": 123,
+            "x": 264.5587158203125,
+            "y": -62.249114990234378,
+            "route": "G",
+            "name": "Node 123",
+            "neighbors": [
+                122,
+                124,
+                168,
+                169,
+                159
+            ],
+            "hasTreasure": false,
+            "thiefFootprints": []
+        },
+        {
+            "id": 124,
+            "x": 233.43408203125,
+            "y": -117.4244384765625,
+            "route": "G",
+            "name": "Node 124",
+            "neighbors": [
+                123,
+                125
+            ],
+            "hasTreasure": false,
+            "thiefFootprints": []
+        },
+        {
+            "id": 125,
+            "x": 200.894775390625,
+            "y": -178.2587890625,
+            "route": "G",
+            "name": "Node 125",
+            "neighbors": [
+                124,
+                126,
+                67,
+                151
+            ],
+            "hasTreasure": false,
+            "thiefFootprints": []
+        },
+        {
+            "id": 126,
+            "x": 172.5997314453125,
+            "y": -227.77511596679688,
+            "route": "G",
+            "name": "Node 126",
+            "neighbors": [
+                125,
+                69
+            ],
+            "hasTreasure": false,
+            "thiefFootprints": []
+        },
+        {
+            "id": 127,
+            "x": 73.567138671875,
+            "y": -338.12579345703127,
+            "route": "G",
+            "name": "Node 127",
+            "neighbors": [
+                69,
+                128
+            ],
+            "hasTreasure": false,
+            "thiefFootprints": []
+        },
+        {
+            "id": 128,
+            "x": 4.2442626953125,
+            "y": -339.54052734375,
+            "route": "G",
+            "name": "Node 128",
+            "neighbors": [
+                127,
+                129
+            ],
+            "hasTreasure": false,
+            "thiefFootprints": []
+        },
+        {
+            "id": 129,
+            "x": -70.737548828125,
+            "y": -335.2962646484375,
+            "route": "G",
+            "name": "Node 129",
+            "neighbors": [
+                128,
+                90
+            ],
+            "hasTreasure": false,
+            "thiefFootprints": []
+        },
+        {
+            "id": 130,
+            "x": -234.84881591796876,
+            "y": -338.12579345703127,
+            "route": "G",
+            "name": "Node 130",
+            "neighbors": [
+                90,
+                131
+            ],
+            "hasTreasure": false,
+            "thiefFootprints": []
+        },
+        {
+            "id": 131,
+            "x": -311.2454833984375,
+            "y": -339.54052734375,
+            "route": "G",
+            "name": "Node 131",
+            "neighbors": [
+                130,
+                132
+            ],
+            "hasTreasure": false,
+            "thiefFootprints": []
+        },
+        {
+            "id": 132,
+            "x": -390.4715576171875,
+            "y": -338.12579345703127,
+            "route": "G",
+            "name": "Node 132",
+            "neighbors": [
+                131,
+                133,
+                14
+            ],
+            "hasTreasure": false,
+            "thiefFootprints": []
+        },
+        {
+            "id": 133,
+            "x": -468.282958984375,
+            "y": -338.12579345703127,
+            "route": "G",
+            "name": "Node 133",
+            "neighbors": [
+                132,
+                134
+            ],
+            "hasTreasure": false,
+            "thiefFootprints": []
+        },
+        {
+            "id": 134,
+            "x": -547.5090942382813,
+            "y": -338.12579345703127,
+            "route": "G",
+            "name": "Node 134",
+            "neighbors": [
+                133,
+                50
+            ],
+            "hasTreasure": false,
+            "thiefFootprints": []
+        },
+        {
+            "id": 135,
+            "x": -679.0810546875,
+            "y": -250.4111328125,
+            "route": "G",
+            "name": "Node 135",
+            "neighbors": [
+                50,
+                19
+            ],
+            "hasTreasure": false,
+            "thiefFootprints": []
+        },
+        {
+            "id": 136,
+            "x": 606.9287109375,
+            "y": 157.0374755859375,
+            "route": "H",
+            "name": "Node 136",
+            "neighbors": [
+                92,
+                137
+            ],
+            "hasTreasure": false,
+            "thiefFootprints": []
+        },
+        {
+            "id": 137,
+            "x": 557.412353515625,
+            "y": 93.37359619140625,
+            "route": "H",
+            "name": "Node 137",
+            "neighbors": [
+                136,
+                31
+            ],
+            "hasTreasure": false,
+            "thiefFootprints": []
+        },
+        {
+            "id": 138,
+            "x": 628.14990234375,
+            "y": -53.760589599609378,
+            "route": "H",
+            "name": "Node 138",
+            "neighbors": [
+                31,
+                139
+            ],
+            "hasTreasure": false,
+            "thiefFootprints": []
+        },
+        {
+            "id": 139,
+            "x": 656.4449462890625,
+            "y": -121.668701171875,
+            "route": "H",
+            "name": "Node 139",
+            "neighbors": [
+                138,
+                140
+            ],
+            "hasTreasure": false,
+            "thiefFootprints": []
+        },
+        {
+            "id": 140,
+            "x": 696.05810546875,
+            "y": -195.23580932617188,
+            "route": "H",
+            "name": "Node 140",
+            "neighbors": [
+                139,
+                141,
+                157
+            ],
+            "hasTreasure": false,
+            "thiefFootprints": []
+        },
+        {
+            "id": 141,
+            "x": 720.10888671875,
+            "y": -263.1439208984375,
+            "route": "H",
+            "name": "Node 141",
+            "neighbors": [
+                140,
+                142
+            ],
+            "hasTreasure": false,
+            "thiefFootprints": []
+        },
+        {
+            "id": 142,
+            "x": 745.5743408203125,
+            "y": -326.8077392578125,
+            "route": "H",
+            "name": "Node 142",
+            "neighbors": [
+                141,
+                80,
+                36
+            ],
+            "hasTreasure": false,
+            "thiefFootprints": []
+        },
+        {
+            "id": 143,
+            "x": -499.407470703125,
+            "y": 128.742431640625,
+            "route": "I",
+            "name": "Node 143",
+            "neighbors": [
+                56,
+                144
+            ],
+            "hasTreasure": false,
+            "thiefFootprints": []
+        },
+        {
+            "id": 144,
+            "x": -455.5501708984375,
+            "y": 36.78350830078125,
+            "route": "I",
+            "name": "Node 144",
+            "neighbors": [
+                143,
+                105
+            ],
+            "hasTreasure": false,
+            "thiefFootprints": []
+        },
+        {
+            "id": 145,
+            "x": -380.56829833984377,
+            "y": -103.27691650390625,
+            "route": "I",
+            "name": "Node 145",
+            "neighbors": [
+                105,
+                12
+            ],
+            "hasTreasure": false,
+            "thiefFootprints": []
+        },
+        {
+            "id": 146,
+            "x": -295.68316650390627,
+            "y": -273.04718017578127,
+            "route": "I",
+            "name": "Node 146",
+            "neighbors": [
+                12,
+                147
+            ],
+            "hasTreasure": false,
+            "thiefFootprints": []
+        },
+        {
+            "id": 147,
+            "x": -212.21282958984376,
+            "y": -274.4619445800781,
+            "route": "I",
+            "name": "Node 147",
+            "neighbors": [
+                146,
+                89
+            ],
+            "hasTreasure": false,
+            "thiefFootprints": []
+        },
+        {
+            "id": 148,
+            "x": -31.12451171875,
+            "y": -273.04718017578127,
+            "route": "I",
+            "name": "Node 148",
+            "neighbors": [
+                89,
+                149
+            ],
+            "hasTreasure": false,
+            "thiefFootprints": []
+        },
+        {
+            "id": 149,
+            "x": 53.7606201171875,
+            "y": -274.4619445800781,
+            "route": "I",
+            "name": "Node 149",
+            "neighbors": [
+                148,
+                69
+            ],
+            "hasTreasure": false,
+            "thiefFootprints": []
+        },
+        {
+            "id": 150,
+            "x": 196.6505126953125,
+            "y": -273.04718017578127,
+            "route": "I",
+            "name": "Node 150",
+            "neighbors": [
+                69,
+                151
+            ],
+            "hasTreasure": false,
+            "thiefFootprints": []
+        },
+        {
+            "id": 151,
+            "x": 250.41110229492188,
+            "y": -271.63238525390627,
+            "route": "I",
+            "name": "Node 151",
+            "neighbors": [
+                150,
+                152,
+                125,
+                175
+            ],
+            "hasTreasure": false,
+            "thiefFootprints": []
+        },
+        {
+            "id": 152,
+            "x": 288.6094970703125,
+            "y": -230.6046142578125,
+            "route": "I",
+            "name": "Node 152",
+            "neighbors": [
+                151,
+                153
+            ],
+            "hasTreasure": false,
+            "thiefFootprints": []
+        },
+        {
+            "id": 153,
+            "x": 328.2225341796875,
+            "y": -190.99154663085938,
+            "route": "I",
+            "name": "Node 153",
+            "neighbors": [
+                152,
+                154,
+                169,
+                170
+            ],
+            "hasTreasure": false,
+            "thiefFootprints": []
+        },
+        {
+            "id": 154,
+            "x": 390.4715576171875,
+            "y": -190.99154663085938,
+            "route": "I",
+            "name": "Node 154",
+            "neighbors": [
+                153,
+                155
+            ],
+            "hasTreasure": false,
+            "thiefFootprints": []
+        },
+        {
+            "id": 155,
+            "x": 448.4764404296875,
+            "y": -192.40631103515626,
+            "route": "I",
+            "name": "Node 155",
+            "neighbors": [
+                154,
+                34
+            ],
+            "hasTreasure": false,
+            "thiefFootprints": []
+        },
+        {
+            "id": 156,
+            "x": 571.559814453125,
+            "y": -195.23580932617188,
+            "route": "I",
+            "name": "Node 156",
+            "neighbors": [
+                34,
+                157
+            ],
+            "hasTreasure": false,
+            "thiefFootprints": []
+        },
+        {
+            "id": 157,
+            "x": 632.3941650390625,
+            "y": -192.40631103515626,
+            "route": "I",
+            "name": "Node 157",
+            "neighbors": [
+                156,
+                140
+            ],
+            "hasTreasure": false,
+            "thiefFootprints": []
+        },
+        {
+            "id": 158,
+            "x": 141.4752197265625,
+            "y": 43.8572998046875,
+            "route": "J",
+            "name": "Node 158",
+            "neighbors": [
+                24,
+                159
+            ],
+            "hasTreasure": false,
+            "thiefFootprints": []
+        },
+        {
+            "id": 159,
+            "x": 93.3736572265625,
+            "y": -14.14752197265625,
+            "route": "J",
+            "name": "Node 159",
+            "neighbors": [
+                158,
+                65,
+                123
+            ],
+            "hasTreasure": false,
+            "thiefFootprints": []
+        },
+        {
+            "id": 160,
+            "x": -29.7098388671875,
+            "y": -154.2080078125,
+            "route": "J",
+            "name": "Node 160",
+            "neighbors": [
+                65,
+                161
+            ],
+            "hasTreasure": false,
+            "thiefFootprints": []
+        },
+        {
+            "id": 161,
+            "x": -90.5440673828125,
+            "y": -152.79324340820313,
+            "route": "J",
+            "name": "Node 161",
+            "neighbors": [
+                160,
+                88
+            ],
+            "hasTreasure": false,
+            "thiefFootprints": []
+        },
+        {
+            "id": 162,
+            "x": -215.04229736328126,
+            "y": -154.2080078125,
+            "route": "J",
+            "name": "Node 162",
+            "neighbors": [
+                88,
+                163
+            ],
+            "hasTreasure": false,
+            "thiefFootprints": []
+        },
+        {
+            "id": 163,
+            "x": -270.2176513671875,
+            "y": -154.2080078125,
+            "route": "J",
+            "name": "Node 163",
+            "neighbors": [
+                162,
+                11
+            ],
+            "hasTreasure": false,
+            "thiefFootprints": []
+        },
+        {
+            "id": 164,
+            "x": -325.39300537109377,
+            "y": -31.12457275390625,
+            "route": "J",
+            "name": "Node 164",
+            "neighbors": [
+                11,
+                104
+            ],
+            "hasTreasure": false,
+            "thiefFootprints": []
+        },
+        {
+            "id": 165,
+            "x": 251.825927734375,
+            "y": 274.46185302734377,
+            "route": "K",
+            "name": "Node 165",
+            "neighbors": [
+                1,
+                166
+            ],
+            "hasTreasure": false,
+            "thiefFootprints": []
+        },
+        {
+            "id": 166,
+            "x": 223.5308837890625,
+            "y": 190.991455078125,
+            "route": "K",
+            "name": "Node 166",
+            "neighbors": [
+                165,
+                24
+            ],
+            "hasTreasure": false,
+            "thiefFootprints": []
+        },
+        {
+            "id": 167,
+            "x": 216.45703125,
+            "y": 46.68682861328125,
+            "route": "K",
+            "name": "Node 167",
+            "neighbors": [
+                24,
+                168
+            ],
+            "hasTreasure": false,
+            "thiefFootprints": []
+        },
+        {
+            "id": 168,
+            "x": 239.0931396484375,
+            "y": -5.6590576171875,
+            "route": "K",
+            "name": "Node 168",
+            "neighbors": [
+                167,
+                123
+            ],
+            "hasTreasure": false,
+            "thiefFootprints": []
+        },
+        {
+            "id": 169,
+            "x": 294.2684326171875,
+            "y": -123.08346557617188,
+            "route": "K",
+            "name": "Node 169",
+            "neighbors": [
+                123,
+                153,
+                32
+            ],
+            "hasTreasure": false,
+            "thiefFootprints": []
+        },
+        {
+            "id": 170,
+            "x": 359.3470458984375,
+            "y": -258.899658203125,
+            "route": "K",
+            "name": "Node 170",
+            "neighbors": [
+                153,
+                171
+            ],
+            "hasTreasure": false,
+            "thiefFootprints": []
+        },
+        {
+            "id": 171,
+            "x": 386.227294921875,
+            "y": -318.3192443847656,
+            "route": "K",
+            "name": "Node 171",
+            "neighbors": [
+                170,
+                37
+            ],
+            "hasTreasure": false,
+            "thiefFootprints": []
+        },
+        {
+            "id": 172,
+            "x": 439.9879150390625,
+            "y": -434.32891845703127,
+            "route": "K",
+            "name": "Node 172",
+            "neighbors": [
+                37,
+                74
+            ],
+            "hasTreasure": false,
+            "thiefFootprints": []
+        },
+        {
+            "id": 173,
+            "x": -462.62396240234377,
+            "y": 400.37481689453127,
+            "route": "L",
+            "name": "Node 173",
+            "neighbors": [
+                108,
+                58
+            ],
+            "hasTreasure": false,
+            "thiefFootprints": []
+        },
+        {
+            "id": 174,
+            "x": -349.44378662109377,
+            "y": 147.1342010498047,
+            "route": "L",
+            "name": "Node 174",
+            "neighbors": [
+                58,
+                104
+            ],
+            "hasTreasure": false,
+            "thiefFootprints": []
+        },
+        {
+            "id": 175,
+            "x": 278.7062072753906,
+            "y": -329.6372985839844,
+            "route": "M",
+            "name": "Node 176",
+            "neighbors": [
+                151,
+                39
+            ],
+            "hasTreasure": false,
+            "thiefFootprints": []
+        },
+        {
+            "id": 176,
+            "x": 329.63720703125,
+            "y": -431.4993896484375,
+            "route": "M",
+            "name": "Node 177",
+            "neighbors": [
+                39,
+                73
             ],
             "hasTreasure": false,
             "thiefFootprints": []
