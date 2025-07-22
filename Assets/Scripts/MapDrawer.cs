@@ -25,6 +25,8 @@ public class MapDrawer : MonoBehaviour
     private bool draggingNode = false;
     public float lineWidth = 2f;
 
+    private string neighborEditString = string.Empty;
+
     public RouteColorConfig routeColorConfig;
 
     private readonly Dictionary<string, UILine> routeLines = new();
@@ -89,7 +91,7 @@ public class MapDrawer : MonoBehaviour
 
             lastNode = current;
 
-                BuildPreview();
+            BuildPreview();
         }
     }
 
@@ -193,7 +195,7 @@ public class MapDrawer : MonoBehaviour
             nextId = startIndex;
             lastNode = null;
             selectedNode = null;
-                BuildPreview();
+            BuildPreview();
         }
         GUILayout.EndArea();
         if (selectedNode != null)
@@ -220,11 +222,11 @@ public class MapDrawer : MonoBehaviour
             if (newId != selectedNode.id)
             {
                 UpdateNodeId(selectedNode, newId);
-                    BuildPreview();
+                BuildPreview();
             }
             selectedNode.x = newX;
             selectedNode.y = newY;
-            if (mapManager != null )
+            if (mapManager != null)
             {
                 GameObject go = mapManager.GetNodeObject(selectedNode.id);
                 if (go != null)
@@ -237,7 +239,7 @@ public class MapDrawer : MonoBehaviour
             if (GUILayout.Button("Delete Node"))
             {
                 RemoveNode(selectedNode);
-                    BuildPreview();
+                BuildPreview();
             }
             GUILayout.EndArea();
         }
@@ -346,7 +348,7 @@ public class MapDrawer : MonoBehaviour
 
         node.id = newId;
         if (newId >= nextId) nextId = newId + 1;
-            BuildPreview();
+        BuildPreview();
     }
 
     private void RemoveNode(MapNodeData node)
@@ -357,7 +359,47 @@ public class MapDrawer : MonoBehaviour
             n.neighbors.Remove(node.id);
         if (lastNode == node) lastNode = null;
         if (selectedNode == node) selectedNode = null;
-            BuildPreview();
+
+        if (selectedNode == node)
+        {
+            selectedNode = null;
+            neighborEditString = string.Empty;
+        }
+        BuildPreview();
+    }
+
+    private void UpdateNeighborsFromString(MapNodeData node, string str)
+    {
+        if (node == null) return;
+        var newList = new List<int>();
+        if (!string.IsNullOrEmpty(str))
+        {
+            var parts = str.Split(',');
+            foreach (var p in parts)
+            {
+                if (int.TryParse(p.Trim(), out var id) && id != node.id && !newList.Contains(id))
+                {
+                    newList.Add(id);
+                }
+            }
+        }
+
+        foreach (var n in nodes)
+        {
+            if (n == node) continue;
+            if (newList.Contains(n.id))
+            {
+                if (!n.neighbors.Contains(node.id)) n.neighbors.Add(node.id);
+            }
+            else
+            {
+                n.neighbors.Remove(node.id);
+            }
+        }
+
+        node.neighbors = newList;
+
+        BuildPreview();
     }
 
     private void ExportJson()
@@ -413,11 +455,6 @@ public class MapDrawer : MonoBehaviour
         mapManager.mapJsonFile = new TextAsset(json);
         mapManager.LoadAndBuildMap();
         DrawConnections();
-    }
-
-    private void EnterPreview()
-    {
-        BuildPreview();
     }
 
     private void EnterPreview()
