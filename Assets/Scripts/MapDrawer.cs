@@ -42,6 +42,11 @@ public class MapDrawer : MonoBehaviour
         LoadMapIfExists();
     }
 
+    void OnDisable()
+    {
+        ClearLines();
+    }
+
     void Update()
     {
         if (isDrawing)
@@ -56,6 +61,10 @@ public class MapDrawer : MonoBehaviour
                 RemoveNode(selectedNode);
             }
         }
+
+        // Keep connection lines in sync with node positions only during edit or draw modes
+        if (isDrawing || isEditing)
+            UpdateLinePositions();
     }
 
     private void HandleDrawingInput()
@@ -244,7 +253,6 @@ public class MapDrawer : MonoBehaviour
             GUILayout.EndArea();
         }
 
-        DrawConnections();
     }
 
     private MapNodeData FindNearbyNode(Vector2 localPos, float threshold)
@@ -283,7 +291,8 @@ public class MapDrawer : MonoBehaviour
     private void DrawConnections()
     {
         if (mapManager == null) return;
-        ClearLines();
+
+        // Group nodes by route
         var groups = new Dictionary<string, List<MapNodeData>>();
         foreach (var node in nodes)
         {
@@ -295,6 +304,21 @@ public class MapDrawer : MonoBehaviour
             list.Add(node);
         }
 
+        // Remove lines for routes that no longer exist or have too few nodes
+        var toRemove = new List<string>();
+        foreach (var pair in routeLines)
+        {
+            if (!groups.ContainsKey(pair.Key) || groups[pair.Key].Count < 2)
+            {
+                if (pair.Value != null)
+                    Destroy(pair.Value.gameObject);
+                toRemove.Add(pair.Key);
+            }
+        }
+        foreach (var key in toRemove)
+            routeLines.Remove(key);
+
+        // Create or update lines for each route
         foreach (var kvp in groups)
         {
             string route = kvp.Key;
@@ -303,10 +327,16 @@ public class MapDrawer : MonoBehaviour
             if (list.Count < 2)
                 continue;
 
-            Transform parent = mapManager.nodeParent != null ? mapManager.nodeParent : mapRoot;
-            var line = UILine.CreateLine(parent);
-            line.transform.SetAsFirstSibling();
-            line.line.Clear();
+            if (!routeLines.TryGetValue(route, out var line) || line == null)
+            {
+                Transform parent = mapManager.nodeParent != null ? mapManager.nodeParent : mapRoot;
+                line = UILine.CreateLine(parent);
+                line.transform.SetAsFirstSibling();
+                routeLines[route] = line;
+            }
+
+            while (line.line.Count > list.Count)
+                line.line.Pop();
             while (line.line.Count < list.Count)
                 line.line.Push();
 
@@ -326,8 +356,36 @@ public class MapDrawer : MonoBehaviour
                 new[] { new GradientColorKey(c, 0f), new GradientColorKey(c, 1f) },
                 new[] { new GradientAlphaKey(c.a, 0f), new GradientAlphaKey(c.a, 1f) });
             line.line.option.color = grad;
+        }
+    }
 
-            routeLines[route] = line;
+    private void UpdateLinePositions()
+    {
+        if (mapManager == null) return;
+
+        foreach (var pair in routeLines)
+        {
+            string route = pair.Key;
+            UILine line = pair.Value;
+            if (line == null) continue;
+
+            var list = nodes.FindAll(n => n.route == route);
+            list.Sort((a, b) => a.id.CompareTo(b.id));
+
+            while (line.line.Count > list.Count)
+                line.line.Pop();
+            while (line.line.Count < list.Count)
+                line.line.Push();
+
+            for (int i = 0; i < list.Count; i++)
+            {
+                GameObject go = mapManager.GetNodeObject(list[i].id);
+                if (go != null)
+                {
+                    Vector3 pos = go.GetComponent<RectTransform>().position;
+                    line.line.EditPoint(i, pos, lineWidth);
+                }
+            }
         }
     }
 
