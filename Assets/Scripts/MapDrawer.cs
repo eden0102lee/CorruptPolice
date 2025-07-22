@@ -25,11 +25,10 @@ public class MapDrawer : MonoBehaviour
     private bool draggingNode = false;
     public float lineWidth = 2f;
 
-    private string neighborEditString = string.Empty;
-
     public RouteColorConfig routeColorConfig;
 
-    private readonly List<UILine> connectionLines = new();
+    private readonly Dictionary<string, UILine> routeLines = new();
+
     private bool isDrawing = false;
     private bool isEditing = false;
     private MapManager mapManager;
@@ -180,14 +179,12 @@ public class MapDrawer : MonoBehaviour
         {
             isEditing = true;
             selectedNode = null;
-            neighborEditString = string.Empty;
             EnterPreview();
         }
         else if (isEditing && GUILayout.Button("Save"))
         {
             isEditing = false;
             selectedNode = null;
-            neighborEditString = string.Empty;
             ExitPreview();
         }
         if (GUILayout.Button("Clear"))
@@ -196,7 +193,6 @@ public class MapDrawer : MonoBehaviour
             nextId = startIndex;
             lastNode = null;
             selectedNode = null;
-            neighborEditString = string.Empty;
                 BuildPreview();
         }
         GUILayout.EndArea();
@@ -274,52 +270,62 @@ public class MapDrawer : MonoBehaviour
 
     private void ClearLines()
     {
-        foreach (var line in connectionLines)
+        foreach (var pair in routeLines)
         {
-            if (line != null)
-                Destroy(line.gameObject);
+            if (pair.Value != null)
+                Destroy(pair.Value.gameObject);
         }
-        connectionLines.Clear();
+        routeLines.Clear();
     }
 
     private void DrawConnections()
     {
         if (mapManager == null) return;
         ClearLines();
+        var groups = new Dictionary<string, List<MapNodeData>>();
         foreach (var node in nodes)
         {
-            foreach (var nId in node.neighbors)
+            if (!groups.TryGetValue(node.route, out var list))
             {
-                if (node.id < nId)
+                list = new List<MapNodeData>();
+                groups[node.route] = list;
+            }
+            list.Add(node);
+        }
+
+        foreach (var kvp in groups)
+        {
+            string route = kvp.Key;
+            var list = kvp.Value;
+            list.Sort((a, b) => a.id.CompareTo(b.id));
+            if (list.Count < 2)
+                continue;
+
+            Transform parent = mapManager.nodeParent != null ? mapManager.nodeParent : mapRoot;
+            var line = UILine.CreateLine(parent);
+            line.transform.SetAsFirstSibling();
+            line.line.Clear();
+            while (line.line.Count < list.Count)
+                line.line.Push();
+
+            for (int i = 0; i < list.Count; i++)
+            {
+                GameObject go = mapManager.GetNodeObject(list[i].id);
+                if (go != null)
                 {
-                    var other = nodes.Find(n => n.id == nId);
-                    if (other != null)
-                    {
-                        GameObject startGo = mapManager.GetNodeObject(node.id);
-                        GameObject endGo = mapManager.GetNodeObject(other.id);
-                        if (startGo != null && endGo != null)
-                        {
-                            Transform parent = mapManager.nodeParent != null ? mapManager.nodeParent : mapRoot;
-                            var line = UILine.CreateLine(parent);
-                            line.transform.SetAsFirstSibling();
-                            line.line.Clear();
-                            line.line.Push();
-                            line.line.Push();
-                            Vector3 p0 = startGo.GetComponent<RectTransform>().position;
-                            Vector3 p1 = endGo.GetComponent<RectTransform>().position;
-                            line.line.EditPoint(0, p0, lineWidth);
-                            line.line.EditPoint(1, p1, lineWidth);
-                            Color c = GetColorForRoute(node.route);
-                            var grad = new Gradient();
-                            grad.SetKeys(
-                                new[] { new GradientColorKey(c, 0f), new GradientColorKey(c, 1f) },
-                                new[] { new GradientAlphaKey(c.a, 0f), new GradientAlphaKey(c.a, 1f) });
-                            line.line.option.color = grad;
-                            connectionLines.Add(line);
-                        }
-                    }
+                    Vector3 pos = go.GetComponent<RectTransform>().position;
+                    line.line.EditPoint(i, pos, lineWidth);
                 }
             }
+
+            Color c = GetColorForRoute(route);
+            var grad = new Gradient();
+            grad.SetKeys(
+                new[] { new GradientColorKey(c, 0f), new GradientColorKey(c, 1f) },
+                new[] { new GradientAlphaKey(c.a, 0f), new GradientAlphaKey(c.a, 1f) });
+            line.line.option.color = grad;
+
+            routeLines[route] = line;
         }
     }
 
@@ -350,44 +356,7 @@ public class MapDrawer : MonoBehaviour
         foreach (var n in nodes)
             n.neighbors.Remove(node.id);
         if (lastNode == node) lastNode = null;
-        if (selectedNode == node)
-        {
-            selectedNode = null;
-            neighborEditString = string.Empty;
-        }
-            BuildPreview();
-    }
-
-    private void UpdateNeighborsFromString(MapNodeData node, string str)
-    {
-        if (node == null) return;
-        var newList = new List<int>();
-        if (!string.IsNullOrEmpty(str))
-        {
-            var parts = str.Split(',');
-            foreach (var p in parts)
-            {
-                if (int.TryParse(p.Trim(), out var id) && id != node.id && !newList.Contains(id))
-                {
-                    newList.Add(id);
-                }
-            }
-        }
-
-        foreach (var n in nodes)
-        {
-            if (n == node) continue;
-            if (newList.Contains(n.id))
-            {
-                if (!n.neighbors.Contains(node.id)) n.neighbors.Add(node.id);
-            }
-            else
-            {
-                n.neighbors.Remove(node.id);
-            }
-        }
-
-        node.neighbors = newList;
+        if (selectedNode == node) selectedNode = null;
             BuildPreview();
     }
 
@@ -444,6 +413,11 @@ public class MapDrawer : MonoBehaviour
         mapManager.mapJsonFile = new TextAsset(json);
         mapManager.LoadAndBuildMap();
         DrawConnections();
+    }
+
+    private void EnterPreview()
+    {
+        BuildPreview();
     }
 
     private void EnterPreview()
