@@ -39,6 +39,7 @@ public class MapDrawer : MonoBehaviour
 
     private readonly List<ConnectionInfo> connectionLines = new();
 
+
     private bool isDrawing = false;
     private bool isEditing = false;
     private MapManager mapManager;
@@ -300,19 +301,57 @@ public class MapDrawer : MonoBehaviour
     {
         if (mapManager == null) return;
 
-        foreach (var info in connectionLines)
+        // Group nodes by route
+        var routeGroups = new Dictionary<string, List<MapNodeData>>();
+        foreach (var node in nodes)
         {
-            if (info.line != null)
-                Destroy(info.line.gameObject);
+            if (!routeGroups.TryGetValue(node.route, out var list))
+            {
+                list = new List<MapNodeData>();
+                routeGroups[node.route] = list;
+            }
+            list.Add(node);
+
         }
         connectionLines.Clear();
 
-        foreach (var node in nodes)
+        // Remove unused lines
+        var toRemove = new List<string>();
+        foreach (var pair in routeLines)
         {
-            foreach (var neighborId in node.neighbors)
+            if (!routeGroups.ContainsKey(pair.Key) || routeGroups[pair.Key].Count < 2)
             {
-                MapNodeData neighbor = nodes.Find(n => n.id == neighborId);
-                if (neighbor == null) continue;
+                if (pair.Value != null)
+                    Destroy(pair.Value.gameObject);
+                toRemove.Add(pair.Key);
+            }
+        }
+        foreach (var r in toRemove)
+            routeLines.Remove(r);
+
+        // Create/update lines for each route in order
+        var orderedRoutes = new List<string>(routeGroups.Keys);
+        orderedRoutes.Sort();
+        foreach (var route in orderedRoutes)
+        {
+            var list = routeGroups[route];
+            list.Sort((a, b) => a.id.CompareTo(b.id));
+            if (list.Count < 2)
+                continue;
+
+            if (!routeLines.TryGetValue(route, out var line) || line == null)
+            {
+                Transform parent = mapManager.nodeParent != null ? mapManager.nodeParent : mapRoot;
+                line = UILine.CreateLine(parent);
+                line.name = $"UILine_{route}";
+                line.transform.SetAsFirstSibling();
+                routeLines[route] = line;
+            }
+
+            while (line.line.Count > list.Count)
+                line.line.Pop();
+            while (line.line.Count < list.Count)
+                line.line.Push();
 
                 if (node.route == neighbor.route)
                 {
@@ -365,6 +404,7 @@ public class MapDrawer : MonoBehaviour
             line.line.EditPoint(1, toPos, lineWidth);
         }
     }
+
 
     private void UpdateLinePositions()
     {
