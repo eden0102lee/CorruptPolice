@@ -31,6 +31,7 @@ public class MapDrawer : MonoBehaviour
 
     private readonly Dictionary<string, UILine> routeLines = new();
 
+
     private bool isDrawing = false;
     private bool isEditing = false;
     private MapManager mapManager;
@@ -293,36 +294,37 @@ public class MapDrawer : MonoBehaviour
         if (mapManager == null) return;
 
         // Group nodes by route
-        var groups = new Dictionary<string, List<MapNodeData>>();
+        var routeGroups = new Dictionary<string, List<MapNodeData>>();
         foreach (var node in nodes)
         {
-            if (!groups.TryGetValue(node.route, out var list))
+            if (!routeGroups.TryGetValue(node.route, out var list))
             {
                 list = new List<MapNodeData>();
-                groups[node.route] = list;
+                routeGroups[node.route] = list;
             }
             list.Add(node);
         }
 
-        // Remove lines for routes that no longer exist or have too few nodes
+        // Remove unused lines
         var toRemove = new List<string>();
         foreach (var pair in routeLines)
         {
-            if (!groups.ContainsKey(pair.Key) || groups[pair.Key].Count < 2)
+            if (!routeGroups.ContainsKey(pair.Key) || routeGroups[pair.Key].Count < 2)
             {
                 if (pair.Value != null)
                     Destroy(pair.Value.gameObject);
                 toRemove.Add(pair.Key);
             }
         }
-        foreach (var key in toRemove)
-            routeLines.Remove(key);
+        foreach (var r in toRemove)
+            routeLines.Remove(r);
 
-        // Create or update lines for each route
-        foreach (var kvp in groups)
+        // Create/update lines for each route in order
+        var orderedRoutes = new List<string>(routeGroups.Keys);
+        orderedRoutes.Sort();
+        foreach (var route in orderedRoutes)
         {
-            string route = kvp.Key;
-            var list = kvp.Value;
+            var list = routeGroups[route];
             list.Sort((a, b) => a.id.CompareTo(b.id));
             if (list.Count < 2)
                 continue;
@@ -331,6 +333,7 @@ public class MapDrawer : MonoBehaviour
             {
                 Transform parent = mapManager.nodeParent != null ? mapManager.nodeParent : mapRoot;
                 line = UILine.CreateLine(parent);
+                line.name = $"UILine_{route}";
                 line.transform.SetAsFirstSibling();
                 routeLines[route] = line;
             }
@@ -358,6 +361,7 @@ public class MapDrawer : MonoBehaviour
             line.line.option.color = grad;
         }
     }
+
 
     private void UpdateLinePositions()
     {
