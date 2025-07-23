@@ -55,3 +55,6 @@ MonoBehaviour:
   routeName: A
   startIndex: 1
   mergeThreshold: 10
+  autoMerge: 1
+  lineWidth: 2
+  routeColorConfig: {fileID: 11400000, guid: 59d9f33991fa4ea6b4319725472d1f0d, type: 2}

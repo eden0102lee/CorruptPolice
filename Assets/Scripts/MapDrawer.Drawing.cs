@@ -43,13 +43,9 @@ public partial class MapDrawer
                     if (node.id < neighbor.id)
                         CreateConnection(node.id, neighbor.id, node.route);
                 }
-                else
+                else if (node.id < neighbor.id)
                 {
-                    if (node.id < neighbor.id)
-                    {
-                        CreateConnection(node.id, neighbor.id, node.route);
-                        CreateConnection(node.id, neighbor.id, neighbor.route);
-                    }
+                    CreateConnection(node.id, neighbor.id, neighbor.route);
                 }
             }
         }

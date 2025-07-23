@@ -24,7 +24,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6195131555721669112}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -48,9 +48,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a1fa17e934700574d8348bbb830c4f08, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mapJsonFile: {fileID: 4900000, guid: 1c5d351830d93ff4fa1f4a95a361854c, type: 3}
+  mapJsonFile: {fileID: 4900000, guid: 1c772c6867d49d5439a95fa14e9764b3, type: 3}
   nodePrefab: {fileID: 1435754647492138302, guid: 54a96f20b5011c74fa021b4948b25aa4, type: 3}
   nodeParent: {fileID: 0}
   pieceUIParent: {fileID: 0}
   pieceUIPrefab: {fileID: 5634936368158693331, guid: a66c9ab64dc46f943a35161af23cb457, type: 3}
+  autoBuildOnStart: 1
   treasureCount: 20

@@ -212,17 +212,9 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 921668033547538937, guid: 880f00822d5b1e54d9c91d6aba215f16, type: 3}
-      propertyPath: m_Enabled
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 921668033547538937, guid: 880f00822d5b1e54d9c91d6aba215f16, type: 3}
       propertyPath: nodeParent
       value: 
       objectReference: {fileID: 5432913788952761604}
-    - target: {fileID: 921668033547538937, guid: 880f00822d5b1e54d9c91d6aba215f16, type: 3}
-      propertyPath: mapJsonFile
-      value: 
-      objectReference: {fileID: 4900000, guid: 1c772c6867d49d5439a95fa14e9764b3, type: 3}
     - target: {fileID: 921668033547538937, guid: 880f00822d5b1e54d9c91d6aba215f16, type: 3}
       propertyPath: pieceUIParent
       value: 
@@ -230,10 +222,6 @@ PrefabInstance:
     - target: {fileID: 6195131555721669112, guid: 880f00822d5b1e54d9c91d6aba215f16, type: 3}
       propertyPath: m_Name
       value: MapManager
-      objectReference: {fileID: 0}
-    - target: {fileID: 6195131555721669112, guid: 880f00822d5b1e54d9c91d6aba215f16, type: 3}
-      propertyPath: m_IsActive
-      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -477,6 +465,76 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!1 &600386166
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 600386167}
+  m_Layer: 5
+  m_Name: RoadRoot
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &600386167
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 600386166}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5432913788952761604}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 100, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!1 &1023168053
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1023168054}
+  m_Layer: 5
+  m_Name: NodeRoot
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1023168054
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1023168053}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5432913788952761604}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 100, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1044433713
 GameObject:
   m_ObjectHideFlags: 0
@@ -707,7 +765,6 @@ RectTransform:
   m_Children:
   - {fileID: 1927060493}
   - {fileID: 5432913788952761604}
-  - {fileID: 1315230129}
   - {fileID: 597470038}
   - {fileID: 172971520}
   m_Father: {fileID: 0}
@@ -745,7 +802,7 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1064431941}
+  m_Father: {fileID: 5432913788952761604}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -1043,7 +1100,10 @@ RectTransform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 600386167}
+  - {fileID: 1023168054}
+  - {fileID: 1315230129}
   m_Father: {fileID: 1064431941}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -1061,7 +1121,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5432913788952761604}
   m_Layer: 5
-  m_Name: MapRoot
+  m_Name: MapGP
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1163,10 +1223,6 @@ PrefabInstance:
       propertyPath: drawArea
       value: 
       objectReference: {fileID: 1927060493}
-    - target: {fileID: 1483681271852763272, guid: 8b016bb3093b4df408e996cb2e3dfbe3, type: 3}
-      propertyPath: routeColorConfig
-      value: 
-      objectReference: {fileID: 11400000, guid: 59d9f33991fa4ea6b4319725472d1f0d, type: 2}
     - target: {fileID: 4466325638937810661, guid: 8b016bb3093b4df408e996cb2e3dfbe3, type: 3}
       propertyPath: m_Name
       value: MapDrawer
