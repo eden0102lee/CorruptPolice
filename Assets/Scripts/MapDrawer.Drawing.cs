@@ -53,7 +53,7 @@ public partial class MapDrawer
 
     private void CreateConnection(int fromId, int toId, string route)
     {
-        Transform parent = mapManager.nodeParent != null ? mapManager.nodeParent : mapRoot;
+        Transform parent = mapManager.roadParent;
         UILine line = UILine.CreateLine(parent);
         line.transform.SetAsFirstSibling();
 

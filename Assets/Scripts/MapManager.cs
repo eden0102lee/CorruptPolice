@@ -31,6 +31,7 @@ public class MapManager : MonoBehaviour
     public TextAsset mapJsonFile;
     public GameObject nodePrefab;
     public Transform nodeParent;
+    public Transform roadParent;
     public Transform pieceUIParent;
     public GameObject pieceUIPrefab;
 

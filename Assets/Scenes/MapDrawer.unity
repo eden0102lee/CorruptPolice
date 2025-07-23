@@ -214,7 +214,11 @@ PrefabInstance:
     - target: {fileID: 921668033547538937, guid: 880f00822d5b1e54d9c91d6aba215f16, type: 3}
       propertyPath: nodeParent
       value: 
-      objectReference: {fileID: 5432913788952761604}
+      objectReference: {fileID: 1023168054}
+    - target: {fileID: 921668033547538937, guid: 880f00822d5b1e54d9c91d6aba215f16, type: 3}
+      propertyPath: roadParent
+      value: 
+      objectReference: {fileID: 600386167}
     - target: {fileID: 921668033547538937, guid: 880f00822d5b1e54d9c91d6aba215f16, type: 3}
       propertyPath: pieceUIParent
       value: 

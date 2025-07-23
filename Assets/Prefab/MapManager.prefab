@@ -51,7 +51,8 @@ MonoBehaviour:
   mapJsonFile: {fileID: 4900000, guid: 1c772c6867d49d5439a95fa14e9764b3, type: 3}
   nodePrefab: {fileID: 1435754647492138302, guid: 54a96f20b5011c74fa021b4948b25aa4, type: 3}
   nodeParent: {fileID: 0}
+  roadParent: {fileID: 0}
   pieceUIParent: {fileID: 0}
   pieceUIPrefab: {fileID: 5634936368158693331, guid: a66c9ab64dc46f943a35161af23cb457, type: 3}
-  autoBuildOnStart: 1
+  autoBuildOnStart: 0
   treasureCount: 20
