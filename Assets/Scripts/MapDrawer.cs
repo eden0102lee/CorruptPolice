@@ -29,7 +29,15 @@ public class MapDrawer : MonoBehaviour
 
     public RouteColorConfig routeColorConfig;
 
-    private readonly Dictionary<string, UILine> routeLines = new();
+    private class ConnectionInfo
+    {
+        public int fromId;
+        public int toId;
+        public string route;
+        public UILine line;
+    }
+
+    private readonly List<ConnectionInfo> connectionLines = new();
 
 
     private bool isDrawing = false;
@@ -281,12 +289,12 @@ public class MapDrawer : MonoBehaviour
 
     private void ClearLines()
     {
-        foreach (var pair in routeLines)
+        foreach (var info in connectionLines)
         {
-            if (pair.Value != null)
-                Destroy(pair.Value.gameObject);
+            if (info.line != null)
+                Destroy(info.line.gameObject);
         }
-        routeLines.Clear();
+        connectionLines.Clear();
     }
 
     private void DrawConnections()
@@ -303,7 +311,9 @@ public class MapDrawer : MonoBehaviour
                 routeGroups[node.route] = list;
             }
             list.Add(node);
+
         }
+        connectionLines.Clear();
 
         // Remove unused lines
         var toRemove = new List<string>();
@@ -343,22 +353,55 @@ public class MapDrawer : MonoBehaviour
             while (line.line.Count < list.Count)
                 line.line.Push();
 
-            for (int i = 0; i < list.Count; i++)
-            {
-                GameObject go = mapManager.GetNodeObject(list[i].id);
-                if (go != null)
+                if (node.route == neighbor.route)
                 {
-                    Vector3 pos = go.GetComponent<RectTransform>().position;
-                    line.line.EditPoint(i, pos, lineWidth);
+                    if (node.id < neighbor.id)
+                        CreateConnection(node.id, neighbor.id, node.route);
+                }
+                else
+                {
+                    if (node.id < neighbor.id)
+                    {
+                        CreateConnection(node.id, neighbor.id, node.route);
+                        CreateConnection(node.id, neighbor.id, neighbor.route);
+                    }
                 }
             }
+        }
+    }
 
-            Color c = GetColorForRoute(route);
-            var grad = new Gradient();
-            grad.SetKeys(
-                new[] { new GradientColorKey(c, 0f), new GradientColorKey(c, 1f) },
-                new[] { new GradientAlphaKey(c.a, 0f), new GradientAlphaKey(c.a, 1f) });
-            line.line.option.color = grad;
+    private void CreateConnection(int fromId, int toId, string route)
+    {
+        Transform parent = mapManager.nodeParent != null ? mapManager.nodeParent : mapRoot;
+        UILine line = UILine.CreateLine(parent);
+        line.transform.SetAsFirstSibling();
+
+        Color c = GetColorForRoute(route);
+        var grad = new Gradient();
+        grad.SetKeys(
+            new[] { new GradientColorKey(c, 0f), new GradientColorKey(c, 1f) },
+            new[] { new GradientAlphaKey(c.a, 0f), new GradientAlphaKey(c.a, 1f) });
+        line.line.option.color = grad;
+
+        var info = new ConnectionInfo
+        {
+            fromId = fromId,
+            toId = toId,
+            route = route,
+            line = line
+        };
+        connectionLines.Add(info);
+
+        GameObject fromObj = mapManager.GetNodeObject(fromId);
+        GameObject toObj = mapManager.GetNodeObject(toId);
+        if (fromObj != null && toObj != null)
+        {
+            while (line.line.Count < 2)
+                line.line.Push();
+            Vector3 fromPos = fromObj.GetComponent<RectTransform>().position;
+            Vector3 toPos = toObj.GetComponent<RectTransform>().position;
+            line.line.EditPoint(0, fromPos, lineWidth);
+            line.line.EditPoint(1, toPos, lineWidth);
         }
     }
 
@@ -367,29 +410,23 @@ public class MapDrawer : MonoBehaviour
     {
         if (mapManager == null) return;
 
-        foreach (var pair in routeLines)
+        foreach (var info in connectionLines)
         {
-            string route = pair.Key;
-            UILine line = pair.Value;
-            if (line == null) continue;
+            if (info.line == null) continue;
 
-            var list = nodes.FindAll(n => n.route == route);
-            list.Sort((a, b) => a.id.CompareTo(b.id));
+            GameObject fromObj = mapManager.GetNodeObject(info.fromId);
+            GameObject toObj = mapManager.GetNodeObject(info.toId);
+            if (fromObj == null || toObj == null) continue;
 
-            while (line.line.Count > list.Count)
-                line.line.Pop();
-            while (line.line.Count < list.Count)
-                line.line.Push();
+            while (info.line.line.Count > 2)
+                info.line.line.Pop();
+            while (info.line.line.Count < 2)
+                info.line.line.Push();
 
-            for (int i = 0; i < list.Count; i++)
-            {
-                GameObject go = mapManager.GetNodeObject(list[i].id);
-                if (go != null)
-                {
-                    Vector3 pos = go.GetComponent<RectTransform>().position;
-                    line.line.EditPoint(i, pos, lineWidth);
-                }
-            }
+            Vector3 fromPos = fromObj.GetComponent<RectTransform>().position;
+            Vector3 toPos = toObj.GetComponent<RectTransform>().position;
+            info.line.line.EditPoint(0, fromPos, lineWidth);
+            info.line.line.EditPoint(1, toPos, lineWidth);
         }
     }
 
