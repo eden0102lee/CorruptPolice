@@ -71,22 +71,25 @@ public class MapManager : MonoBehaviour
         }
     }
 
-    public void BuildMap()
+    public void BuildMap(int? seed = null)
     {
-        LoadAndBuildMap();
+        LoadAndBuildMap(seed);
         if (PlayerTokenManager.Instance != null && GameManager.Instance != null)
         {
             PlayerTokenManager.Instance.CreateTokens(GameManager.Instance.GetAllPlayers());
         }
     }
 
-    public void LoadAndBuildMap()
+    public void LoadAndBuildMap(int? seed = null)
     {
         if (mapJsonFile == null)
         {
             Debug.LogError("Map JSON file not assigned.");
             return;
         }
+
+        if (seed.HasValue)
+            Random.InitState(seed.Value);
 
         MapData mapData = JsonUtility.FromJson<MapData>(mapJsonFile.text);
 

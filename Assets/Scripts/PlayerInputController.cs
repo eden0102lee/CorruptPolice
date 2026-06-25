@@ -26,13 +26,31 @@ public class PlayerInputController : MonoBehaviour
     void Awake()
     {
         Instance = this;
-        actionPanel.SetActive(false);
+        if (actionPanel != null)
+            actionPanel.SetActive(false);
 
-        // 為各個按鈕綁定對應的操作方法
-        confirmButton.onClick.AddListener(OnConfirmAction);
-        moveButton.onClick.AddListener(() => SetActionType(ActionType.Move));
-        investigateButton.onClick.AddListener(() => SetActionType(ActionType.Investigate));
-        arrestButton.onClick.AddListener(() => SetActionType(ActionType.Arrest));
+        if (confirmButton != null)
+            confirmButton.onClick.AddListener(OnConfirmAction);
+        if (moveButton != null)
+            moveButton.onClick.AddListener(() => SetActionType(ActionType.Move));
+        if (investigateButton != null)
+            investigateButton.onClick.AddListener(() => SetActionType(ActionType.Investigate));
+        if (arrestButton != null)
+            arrestButton.onClick.AddListener(() => SetActionType(ActionType.Arrest));
+    }
+
+    public bool CanControlCurrentPlayer()
+    {
+        if (currentPlayer == null)
+            return false;
+
+        if (GameManager.Instance != null && GameManager.Instance.IsNetworkMode)
+        {
+            return NetworkGameController.Instance != null &&
+                   NetworkGameController.Instance.CanLocalPlayerAct(currentPlayer);
+        }
+
+        return true;
     }
 
     /// <summary>
@@ -70,6 +88,9 @@ public class PlayerInputController : MonoBehaviour
     /// </summary>
     void HighlightCurrentNode()
     {
+        if (MapManager.Instance == null || currentPlayer == null)
+            return;
+
         foreach (var ui in MapManager.Instance.GetAllNodeUIs())
             ui.Unhighlight();
 
@@ -82,9 +103,21 @@ public class PlayerInputController : MonoBehaviour
     /// </summary>
     public void OnNodeClicked(int nodeId)
     {
+        if (!CanControlCurrentPlayer())
+        {
+            Debug.Log("Waiting for the active player to act.");
+            return;
+        }
+
         if (placementMode)
         {
             if (currentPlayer == null) return;
+
+            if (GameManager.Instance != null && GameManager.Instance.IsNetworkMode)
+            {
+                NetworkGameController.Instance.SubmitPlacementServerRpc(nodeId);
+                return;
+            }
 
             currentPlayer.currentNodeId = nodeId;
             if (PlayerTokenManager.Instance != null)
@@ -115,11 +148,41 @@ public class PlayerInputController : MonoBehaviour
         ShowActionPanel();
     }
 
+    public void ApplyPlacementResult(int nodeId)
+    {
+        if (currentPlayer == null)
+            return;
+
+        currentPlayer.currentNodeId = nodeId;
+        if (PlayerTokenManager.Instance != null)
+            PlayerTokenManager.Instance.UpdateTokenPosition(currentPlayer);
+
+        MapManager.Instance.GetNodeUI(nodeId)?.Highlight();
+        placementMode = false;
+    }
+
+    public void ApplyRemoteAction(int nodeId, ActionType action)
+    {
+        if (currentPlayer == null || GameManager.Instance == null)
+            return;
+
+        selectedNodeId = nodeId;
+        currentAction = action;
+        GameManager.Instance.TryExecuteAction(currentPlayer, nodeId, action, out _, out _, advanceTurn: false);
+
+        if (actionPanel != null)
+            actionPanel.SetActive(false);
+        selectedNodeId = -1;
+    }
+
     /// <summary>
     /// 顯示行動選單，依照角色開啟對應選項
     /// </summary>
     void ShowActionPanel()
     {
+        if (actionPanel == null)
+            return;
+
         actionPanel.SetActive(true);
         moveButton.gameObject.SetActive(currentPlayer.role == PlayerRole.Thief);
         investigateButton.gameObject.SetActive(currentPlayer.role != PlayerRole.Thief);
@@ -141,74 +204,42 @@ public class PlayerInputController : MonoBehaviour
     {
         if (selectedNodeId == -1 || currentPlayer == null) return;
 
-        currentPlayer.currentNodeId = selectedNodeId;
-        if (PlayerTokenManager.Instance != null)
-            PlayerTokenManager.Instance.UpdateTokenPosition(currentPlayer);
+        if (!CanControlCurrentPlayer())
+            return;
 
-        currentPlayer.remainingSteps--;
+        if (GameManager.Instance != null && GameManager.Instance.IsNetworkMode)
+        {
+            NetworkGameController.Instance.SubmitActionServerRpc(selectedNodeId, (int)currentAction);
+            if (actionPanel != null)
+                actionPanel.SetActive(false);
+            selectedNodeId = -1;
+            return;
+        }
 
-        int round = GameManager.Instance != null ? GameManager.Instance.CurrentRound : -1;
-        Debug.Log($"[Action] Round {round} - {currentPlayer.playerName} performed {currentAction} on node {selectedNodeId}. Remaining steps: {currentPlayer.remainingSteps}");
+        ExecuteConfirmedAction(true);
+    }
 
-        string result = string.Empty;
-        bool isShared = true;
-        if (currentAction == ActionType.Move && currentPlayer.role == PlayerRole.Thief)
+    void ExecuteConfirmedAction(bool advanceTurnLocally)
+    {
+        if (selectedNodeId == -1 || currentPlayer == null)
+            return;
+
+        if (GameManager.Instance != null)
         {
-            MapManager.Instance.AddFootprint(selectedNodeId, currentPlayer.playerName);
-            bool collected = MapManager.Instance.CollectTreasure(selectedNodeId);
-            if (collected)
-            {
-                result = "Found treasure";
-                if (GameManager.Instance != null)
-                    GameManager.Instance.RecordTreasure();
-            }
-            else
-            {
-                result = "No treasure";
-            }
-        }
-        else if (currentAction == ActionType.Investigate && currentPlayer.role != PlayerRole.Thief)
-        {
-            var hasClue = MapManager.Instance.HasFootprint(selectedNodeId);
-            result = hasClue ? "Found clue" : "No clue";
-            isShared = false;
-        }
-        else if (currentAction == ActionType.Arrest && currentPlayer.role != PlayerRole.Thief)
-        {
-            var thief = GameManager.Instance.GetThiefAt(selectedNodeId);
-            if (thief != null)
-            {
-                GameManager.Instance.ArrestThief(thief);
-                result = $"Arrested ({thief.playerName})";
-            }
-            else
-            {
-                result = "No thief";
-            }
-            isShared = true;
-        }
-        if (ActionLogger.Instance != null)
-        {
-            ActionLogger.Instance.Log(
-                currentPlayer,
-                GameManager.Instance.CurrentRound,
-                selectedNodeId,
-                currentAction.ToString(),
-                result,
-                isShared
-            );
+            GameManager.Instance.TryExecuteAction(currentPlayer, selectedNodeId, currentAction, out _, out _);
         }
         else
         {
-            Debug.LogWarning("ActionLogger instance missing - skipping log entry.");
+            currentPlayer.currentNodeId = selectedNodeId;
+            if (PlayerTokenManager.Instance != null)
+                PlayerTokenManager.Instance.UpdateTokenPosition(currentPlayer);
+            currentPlayer.remainingSteps--;
+            if (advanceTurnLocally && currentPlayer.remainingSteps <= 0 && GameManager.Instance != null)
+                GameManager.Instance.NextPlayerTurn();
         }
 
-        if (currentPlayer.remainingSteps <= 0)
-        {
-            GameManager.Instance.NextPlayerTurn();
-        }
-
-        actionPanel.SetActive(false);
+        if (actionPanel != null)
+            actionPanel.SetActive(false);
         selectedNodeId = -1;
     }
 }

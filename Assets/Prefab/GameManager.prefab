@@ -12,6 +12,8 @@ GameObject:
   - component: {fileID: 6572753626031551860}
   - component: {fileID: 1601108920700065734}
   - component: {fileID: 8230683092079081292}
+  - component: {fileID: 9123456789012345678}
+  - component: {fileID: 9123456789012345679}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -78,5 +80,33 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b08ed07128f6bef46a7a43bfe3fbad96, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &9123456789012345678
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6363522763138400275}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eca876ff7a564fb4f97bf14d8661abc8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxPlayers: 12
+  maxRounds: 12
+  treasureGoal: 3
+  selectedMap: {fileID: 0}
+--- !u!114 &9123456789012345679
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6363522763138400275}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a1b2c3d4e5f6789012345678abcdef01, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 

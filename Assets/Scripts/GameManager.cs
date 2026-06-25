@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -26,16 +27,33 @@ public class GameManager : MonoBehaviour
     [Tooltip("How many treasures thieves must collect to win")]
     public int treasureGoal = 3;
 
+    [Header("Mode")]
+    [Tooltip("When enabled, wait for network room setup instead of auto-starting locally.")]
+    public bool useNetworkMode = false;
+
     private int treasuresCollected = 0;
     public GameResult Result { get; private set; } = GameResult.None;
 
     public GamePhase CurrentPhase { get; private set; } = GamePhase.Placement;
+    public GameFlowState FlowState { get; private set; } = GameFlowState.Local;
+    public bool IsNetworkMode => useNetworkMode;
+    public PlayerData CurrentTurnPlayer { get; private set; }
+
+    public void SetCurrentTurnPlayer(PlayerData player)
+    {
+        CurrentTurnPlayer = player;
+        OnTurnChanged?.Invoke(player);
+    }
+
+    public event Action<GameFlowState> OnFlowStateChanged;
+    public event Action<PlayerData> OnTurnChanged;
+    public event Action<GameResult> OnGameOver;
 
     private List<PlayerData> placementOrder = new List<PlayerData>();
     private int placementIndex = 0;
 
     [Header("Team Configuration")]
-    [Tooltip("How many police teams participate in the game")] 
+    [Tooltip("How many police teams participate in the game")]
     public int policeTeamCount = 3;
 
     [Header("Player Counts")]
@@ -53,49 +71,99 @@ public class GameManager : MonoBehaviour
     private List<PlayerData> allPlayers = new List<PlayerData>();
 
     public int CurrentRound => currentRound;
+    public int TreasuresCollected => treasuresCollected;
 
     void Awake()
     {
         Instance = this;
-        InitializeTeams();
-        if (PlayerInputController.Instance != null)
-            BeginPlacement();
+        if (!useNetworkMode)
+        {
+            InitializeTeams();
+            if (PlayerInputController.Instance != null)
+                BeginPlacement();
+        }
+        else
+        {
+            SetFlowState(GameFlowState.Lobby);
+        }
     }
 
     void Start()
     {
-        if (MapManager.Instance != null && !MapManager.Instance.autoBuildOnStart)
+        if (MapManager.Instance != null && !MapManager.Instance.autoBuildOnStart && !useNetworkMode)
         {
             MapManager.Instance.BuildMap();
         }
     }
 
-    void InitializeTeams()
+    public void SetFlowState(GameFlowState state)
     {
+        FlowState = state;
+        OnFlowStateChanged?.Invoke(state);
+    }
+
+    public void ResetGameState()
+    {
+        currentRound = 1;
+        treasuresCollected = 0;
+        Result = GameResult.None;
+        CurrentPhase = GamePhase.Placement;
+        gameOver = false;
+        placementIndex = 0;
+        currentTeamTurnIndex = 0;
+        currentPlayerIndex = 0;
+        thiefPhase = true;
+        currentThiefIndex = 0;
+        CurrentTurnPlayer = null;
+        placementOrder.Clear();
+        policeTeams.Clear();
+        thiefPlayers.Clear();
+        allPlayers.Clear();
+    }
+
+    public void InitializeTeams()
+    {
+        ResetGameState();
+
         policeTeams = new List<List<PlayerData>>();
         for (int i = 0; i < policeTeamCount; i++)
             policeTeams.Add(new List<PlayerData>());
 
-        // Create regular police players and distribute them across teams
         for (int i = 0; i < regularPoliceCount; i++)
         {
             int teamIndex = i % policeTeamCount;
             AddPlayer(new PlayerData($"p{i}", PlayerRole.Police, teamIndex));
         }
 
-        // Create corrupt police players
         for (int i = 0; i < corruptPoliceCount; i++)
         {
             int teamIndex = i % policeTeamCount;
             AddPlayer(new PlayerData($"c{i}", PlayerRole.CorruptPolice, teamIndex));
         }
 
-        // Create thief players
         for (int i = 0; i < thiefCount; i++)
         {
             AddThief(new PlayerData($"t{i}", PlayerRole.Thief, -1));
         }
+    }
 
+    public void InitializeFromRoster(IReadOnlyList<PlayerData> roster, RoomConfig config)
+    {
+        ResetGameState();
+        if (config != null)
+            config.ApplyTo(this);
+
+        policeTeams = new List<List<PlayerData>>();
+        for (int i = 0; i < policeTeamCount; i++)
+            policeTeams.Add(new List<PlayerData>());
+
+        foreach (var player in roster)
+        {
+            if (player.role == PlayerRole.Thief)
+                AddThief(player);
+            else
+                AddPlayer(player);
+        }
     }
 
     void AddPlayer(PlayerData player)
@@ -109,7 +177,7 @@ public class GameManager : MonoBehaviour
         thiefPlayers.Add(thief);
         allPlayers.Add(thief);
     }
-    // --- Testing Utilities ---
+
     public void SetPlayerPositions(int[] nodeIds)
     {
         for (int i = 0; i < nodeIds.Length && i < allPlayers.Count; i++)
@@ -121,6 +189,7 @@ public class GameManager : MonoBehaviour
     public void ForceStartGame()
     {
         CurrentPhase = GamePhase.Playing;
+        SetFlowState(GameFlowState.Playing);
         thiefPhase = true;
         currentThiefIndex = 0;
         currentTeamTurnIndex = (currentRound - 1) % policeTeamCount;
@@ -128,9 +197,10 @@ public class GameManager : MonoBehaviour
         NextPlayerTurn();
     }
 
-    void BeginPlacement()
+    public void BeginPlacement()
     {
         CurrentPhase = GamePhase.Placement;
+        SetFlowState(GameFlowState.Placement);
         placementOrder.Clear();
         for (int i = 0; i < policeTeamCount; i++)
         {
@@ -146,12 +216,15 @@ public class GameManager : MonoBehaviour
         if (placementIndex >= placementOrder.Count)
         {
             CurrentPhase = GamePhase.Playing;
+            SetFlowState(GameFlowState.Playing);
             BeginTurn();
             return;
         }
 
         var player = placementOrder[placementIndex];
-        PlayerInputController.Instance.StartPlacement(player);
+        SetCurrentTurnPlayer(player);
+        if (PlayerInputController.Instance != null)
+            PlayerInputController.Instance.StartPlacement(player);
     }
 
     public void ConfirmPlacement()
@@ -183,7 +256,9 @@ public class GameManager : MonoBehaviour
             {
                 var player = thiefPlayers[currentThiefIndex];
                 player.remainingSteps = stepsPerTurn;
-                PlayerInputController.Instance.SetCurrentPlayer(player);
+                SetCurrentTurnPlayer(player);
+                if (PlayerInputController.Instance != null)
+                    PlayerInputController.Instance.SetCurrentPlayer(player);
                 currentThiefIndex++;
             }
             else
@@ -206,7 +281,9 @@ public class GameManager : MonoBehaviour
             {
                 var player = policeTeams[currentTeamTurnIndex][currentPlayerIndex];
                 player.remainingSteps = stepsPerTurn;
-                PlayerInputController.Instance.SetCurrentPlayer(player);
+                SetCurrentTurnPlayer(player);
+                if (PlayerInputController.Instance != null)
+                    PlayerInputController.Instance.SetCurrentPlayer(player);
                 currentPlayerIndex++;
             }
             else
@@ -251,6 +328,26 @@ public class GameManager : MonoBehaviour
         {
             if (thief.currentNodeId == nodeId)
                 return thief;
+        }
+        return null;
+    }
+
+    public PlayerData GetPlayerByClientId(ulong clientId)
+    {
+        foreach (var player in allPlayers)
+        {
+            if (player.clientId == clientId)
+                return player;
+        }
+        return null;
+    }
+
+    public PlayerData GetPlayerByName(string playerName)
+    {
+        foreach (var player in allPlayers)
+        {
+            if (player.playerName == playerName)
+                return player;
         }
         return null;
     }
@@ -322,7 +419,86 @@ public class GameManager : MonoBehaviour
     void GameOver()
     {
         gameOver = true;
+        SetFlowState(GameFlowState.GameOver);
+        OnGameOver?.Invoke(Result);
         Debug.Log($"Game over - {Result} win");
     }
 
+    public bool TryExecuteAction(PlayerData player, int targetNodeId, ActionType action, out string result, out bool isShared, bool advanceTurn = true)
+    {
+        result = string.Empty;
+        isShared = true;
+
+        if (player == null || player.remainingSteps <= 0)
+            return false;
+
+        if (CurrentPhase == GamePhase.Placement)
+        {
+            player.currentNodeId = targetNodeId;
+            if (PlayerTokenManager.Instance != null)
+                PlayerTokenManager.Instance.UpdateTokenPosition(player);
+            return true;
+        }
+
+        if (!MapManager.Instance.AreNodesConnected(player.currentNodeId, targetNodeId))
+            return false;
+
+        player.currentNodeId = targetNodeId;
+        if (PlayerTokenManager.Instance != null)
+            PlayerTokenManager.Instance.UpdateTokenPosition(player);
+
+        player.remainingSteps--;
+
+        if (action == ActionType.Move && player.role == PlayerRole.Thief)
+        {
+            MapManager.Instance.AddFootprint(targetNodeId, player.playerName);
+            bool collected = MapManager.Instance.CollectTreasure(targetNodeId);
+            if (collected)
+            {
+                result = "Found treasure";
+                RecordTreasure();
+            }
+            else
+            {
+                result = "No treasure";
+            }
+        }
+        else if (action == ActionType.Investigate && player.role != PlayerRole.Thief)
+        {
+            var hasClue = MapManager.Instance.HasFootprint(targetNodeId);
+            result = hasClue ? "Found clue" : "No clue";
+            isShared = false;
+        }
+        else if (action == ActionType.Arrest && player.role != PlayerRole.Thief)
+        {
+            var thief = GetThiefAt(targetNodeId);
+            if (thief != null)
+            {
+                ArrestThief(thief);
+                result = $"Arrested ({thief.playerName})";
+            }
+            else
+            {
+                result = "No thief";
+            }
+            isShared = true;
+        }
+
+        if (ActionLogger.Instance != null)
+        {
+            ActionLogger.Instance.Log(
+                player,
+                CurrentRound,
+                targetNodeId,
+                action.ToString(),
+                result,
+                isShared
+            );
+        }
+
+        if (advanceTurn && player.remainingSteps <= 0)
+            NextPlayerTurn();
+
+        return true;
+    }
 }
