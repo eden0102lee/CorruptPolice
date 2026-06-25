@@ -43,10 +43,16 @@ public class MapManager : MonoBehaviour
     private TreasureLog treasureLog = new TreasureLog();
     private string treasureLogPath;
 
+    private void EnsureTreasureLogPath()
+    {
+        if (string.IsNullOrEmpty(treasureLogPath))
+            treasureLogPath = Path.Combine(Application.persistentDataPath, "treasure_log.json");
+    }
+
     private void SaveTreasureLog()
     {
-        if (!string.IsNullOrEmpty(treasureLogPath))
-            File.WriteAllText(treasureLogPath, JsonUtility.ToJson(treasureLog, true));
+        EnsureTreasureLogPath();
+        File.WriteAllText(treasureLogPath, JsonUtility.ToJson(treasureLog, true));
     }
 
     private Dictionary<int, MapNodeData> nodeDataDict = new Dictionary<int, MapNodeData>();
@@ -60,11 +66,12 @@ public class MapManager : MonoBehaviour
     {
         if (Instance == null) Instance = this;
         else Destroy(gameObject);
+
+        EnsureTreasureLogPath();
     }
 
     void Start()
     {
-        treasureLogPath = Path.Combine(Application.persistentDataPath, "treasure_log.json");
         if (autoBuildOnStart)
         {
             BuildMap();
@@ -155,7 +162,7 @@ public class MapManager : MonoBehaviour
             if (node.hasTreasure)
                 treasureLog.treasures.Add(new TreasureRecord { nodeId = node.id, collected = false });
         }
-        File.WriteAllText(treasureLogPath, JsonUtility.ToJson(treasureLog, true));
+        SaveTreasureLog();
         nodeDataDict.Clear();
         nodeGameObjects.Clear();
         nodeUIs.Clear();
@@ -318,7 +325,7 @@ public class MapManager : MonoBehaviour
         if (record != null)
         {
             record.collected = true;
-            File.WriteAllText(treasureLogPath, JsonUtility.ToJson(treasureLog, true));
+            SaveTreasureLog();
         }
         return true;
     }
