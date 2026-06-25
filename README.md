@@ -56,3 +56,51 @@ Only the active player can submit actions. The host/server validates all moves a
 | `NetworkGameController` | Server-authoritative placement and action handling |
 | `LobbyUI` | Host/join/ready/start controls |
 | `GameFlowUI` | Phase, turn, and result display |
+
+## Test Clients
+
+Automated test clients connect to a host, join the lobby, mark ready, and play without manual input. Useful for validating network flow with multiple instances.
+
+### Unity Editor
+
+Use the menu **CorruptPolice → Test Clients**:
+
+- **Launch Test Host** – configures an auto-host that starts the game when enough players join
+- **Launch Test Client** – configures a bot client that connects to `127.0.0.1`
+- **Clear Test Launcher** – removes the launcher object from the scene
+
+Enter Play Mode after choosing a menu item. For multi-client testing, build the game and run multiple executables, or use several Editor/Build instances.
+
+### Command Line (Build)
+
+```bash
+# Test host (auto-starts when 2+ players join)
+./CorruptPolice.exe -testhost -name TestHost -autostart true -minplayers 2
+
+# Test client
+./CorruptPolice.exe -testclient -address 127.0.0.1 -name TestClient_1 -autoready true -autoplay true
+```
+
+Supported flags:
+
+| Flag | Description |
+|------|-------------|
+| `-testhost` / `-testclient` | Run as automated test host or client |
+| `-address` | Server address (clients only, default `127.0.0.1`) |
+| `-name` | Player display name |
+| `-autoready` | Automatically mark ready in lobby (`true`/`false`) |
+| `-autoplay` | Automatically perform placement and turn actions |
+| `-autostart` | Host auto-starts game when enough players join |
+| `-minplayers` | Minimum players before host auto-starts (default `2`) |
+| `-delay` | Seconds between bot actions (default `0.75`) |
+
+### Launch Script
+
+After building the game, run:
+
+```bash
+chmod +x Assets/Scripts/Test/launch_test_clients.sh
+./Assets/Scripts/Test/launch_test_clients.sh /path/to/CorruptPolice.exe 3
+```
+
+This starts one test host and three automated test clients.
