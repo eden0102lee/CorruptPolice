@@ -121,6 +121,10 @@ public class GameManager : MonoBehaviour
     public void ForceStartGame()
     {
         CurrentPhase = GamePhase.Playing;
+        placementIndex = placementOrder.Count;
+        if (PlayerInputController.Instance != null)
+            PlayerInputController.Instance.CancelPlacement();
+
         thiefPhase = true;
         currentThiefIndex = 0;
         currentTeamTurnIndex = (currentRound - 1) % policeTeamCount;
@@ -151,7 +155,8 @@ public class GameManager : MonoBehaviour
         }
 
         var player = placementOrder[placementIndex];
-        PlayerInputController.Instance.StartPlacement(player);
+        if (PlayerInputController.Instance != null)
+            PlayerInputController.Instance.StartPlacement(player);
     }
 
     public void ConfirmPlacement()
@@ -183,7 +188,8 @@ public class GameManager : MonoBehaviour
             {
                 var player = thiefPlayers[currentThiefIndex];
                 player.remainingSteps = stepsPerTurn;
-                PlayerInputController.Instance.SetCurrentPlayer(player);
+                if (PlayerInputController.Instance != null)
+                    PlayerInputController.Instance.SetCurrentPlayer(player);
                 currentThiefIndex++;
             }
             else
@@ -206,7 +212,8 @@ public class GameManager : MonoBehaviour
             {
                 var player = policeTeams[currentTeamTurnIndex][currentPlayerIndex];
                 player.remainingSteps = stepsPerTurn;
-                PlayerInputController.Instance.SetCurrentPlayer(player);
+                if (PlayerInputController.Instance != null)
+                    PlayerInputController.Instance.SetCurrentPlayer(player);
                 currentPlayerIndex++;
             }
             else

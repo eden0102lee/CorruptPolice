@@ -26,13 +26,25 @@ public class PlayerInputController : MonoBehaviour
     void Awake()
     {
         Instance = this;
-        actionPanel.SetActive(false);
+        if (actionPanel != null)
+            actionPanel.SetActive(false);
 
-        // 為各個按鈕綁定對應的操作方法
-        confirmButton.onClick.AddListener(OnConfirmAction);
-        moveButton.onClick.AddListener(() => SetActionType(ActionType.Move));
-        investigateButton.onClick.AddListener(() => SetActionType(ActionType.Investigate));
-        arrestButton.onClick.AddListener(() => SetActionType(ActionType.Arrest));
+        if (confirmButton != null)
+            confirmButton.onClick.AddListener(OnConfirmAction);
+        if (moveButton != null)
+            moveButton.onClick.AddListener(() => SetActionType(ActionType.Move));
+        if (investigateButton != null)
+            investigateButton.onClick.AddListener(() => SetActionType(ActionType.Investigate));
+        if (arrestButton != null)
+            arrestButton.onClick.AddListener(() => SetActionType(ActionType.Arrest));
+    }
+
+    public void CancelPlacement()
+    {
+        placementMode = false;
+        selectedNodeId = -1;
+        if (actionPanel != null)
+            actionPanel.SetActive(false);
     }
 
     /// <summary>
@@ -70,6 +82,9 @@ public class PlayerInputController : MonoBehaviour
     /// </summary>
     void HighlightCurrentNode()
     {
+        if (MapManager.Instance == null || currentPlayer == null)
+            return;
+
         foreach (var ui in MapManager.Instance.GetAllNodeUIs())
             ui.Unhighlight();
 
@@ -82,6 +97,9 @@ public class PlayerInputController : MonoBehaviour
     /// </summary>
     public void OnNodeClicked(int nodeId)
     {
+        if (MapManager.Instance == null)
+            return;
+
         if (placementMode)
         {
             if (currentPlayer == null) return;
@@ -92,7 +110,8 @@ public class PlayerInputController : MonoBehaviour
 
             MapManager.Instance.GetNodeUI(nodeId)?.Highlight();
             placementMode = false;
-            GameManager.Instance.ConfirmPlacement();
+            if (GameManager.Instance != null)
+                GameManager.Instance.ConfirmPlacement();
             return;
         }
 
@@ -120,10 +139,16 @@ public class PlayerInputController : MonoBehaviour
     /// </summary>
     void ShowActionPanel()
     {
+        if (actionPanel == null || currentPlayer == null)
+            return;
+
         actionPanel.SetActive(true);
-        moveButton.gameObject.SetActive(currentPlayer.role == PlayerRole.Thief);
-        investigateButton.gameObject.SetActive(currentPlayer.role != PlayerRole.Thief);
-        arrestButton.gameObject.SetActive(currentPlayer.role != PlayerRole.Thief);
+        if (moveButton != null)
+            moveButton.gameObject.SetActive(currentPlayer.role == PlayerRole.Thief);
+        if (investigateButton != null)
+            investigateButton.gameObject.SetActive(currentPlayer.role != PlayerRole.Thief);
+        if (arrestButton != null)
+            arrestButton.gameObject.SetActive(currentPlayer.role != PlayerRole.Thief);
     }
 
     /// <summary>
@@ -203,12 +228,13 @@ public class PlayerInputController : MonoBehaviour
             Debug.LogWarning("ActionLogger instance missing - skipping log entry.");
         }
 
-        if (currentPlayer.remainingSteps <= 0)
+        if (currentPlayer.remainingSteps <= 0 && GameManager.Instance != null)
         {
             GameManager.Instance.NextPlayerTurn();
         }
 
-        actionPanel.SetActive(false);
+        if (actionPanel != null)
+            actionPanel.SetActive(false);
         selectedNodeId = -1;
     }
 }

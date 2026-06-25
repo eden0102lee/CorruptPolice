@@ -20,24 +20,28 @@ public class NodeUI : MonoBehaviour
 
     private void Start()
     {
-        highlightImage.enabled = false;
+        if (highlightImage != null)
+            highlightImage.enabled = false;
         if (idText != null)
             idText.text = nodeId.ToString();
     }
 
     void OnButtonClicked()
     {
-        PlayerInputController.Instance.OnNodeClicked(nodeId);
+        if (PlayerInputController.Instance != null)
+            PlayerInputController.Instance.OnNodeClicked(nodeId);
     }
 
     public void Highlight()
     {
-        highlightImage.enabled = true;
+        if (highlightImage != null)
+            highlightImage.enabled = true;
     }
 
     public void Unhighlight()
     {
-        highlightImage.enabled = false;
+        if (highlightImage != null)
+            highlightImage.enabled = false;
     }
 
     public void SetId(int id)

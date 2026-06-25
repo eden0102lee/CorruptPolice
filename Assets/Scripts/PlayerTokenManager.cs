@@ -96,6 +96,12 @@ public class PlayerTokenManager : MonoBehaviour
         }
     }
 
+    public void UpdateAllTokenPositions(IEnumerable<PlayerData> players)
+    {
+        foreach (var player in players)
+            UpdateTokenPosition(player);
+    }
+
     public void HideToken(PlayerData player)
     {
         if (tokens.TryGetValue(player, out GameObject token))
