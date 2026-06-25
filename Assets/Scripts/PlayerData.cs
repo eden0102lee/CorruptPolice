@@ -13,6 +13,8 @@ public class PlayerData
     public int currentNodeId;
     public int remainingSteps;
     public bool isArrested;
+    public ulong clientId;
+    public int slotIndex;
 
     public PlayerData(string name, PlayerRole role, int teamIndex)
     {
@@ -22,6 +24,13 @@ public class PlayerData
         this.currentNodeId = -1;
         this.remainingSteps = 0;
         this.isArrested = false;
+        this.clientId = ulong.MaxValue;
+        this.slotIndex = -1;
+    }
+
+    public bool IsLocalPlayer(ulong localClientId)
+    {
+        return clientId != ulong.MaxValue && clientId == localClientId;
     }
 
     public void MoveTo(int nodeId)
@@ -29,4 +38,3 @@ public class PlayerData
         currentNodeId = nodeId;
     }
 }
-

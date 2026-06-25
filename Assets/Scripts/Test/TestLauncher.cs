@@ -7,22 +7,17 @@ public class TestLauncher : MonoBehaviour
 
     void Start()
     {
-        if (mapManager == null) mapManager = MapManager.Instance;
         if (gameManager == null) gameManager = GameManager.Instance;
+        if (mapManager == null) mapManager = MapManager.Instance;
 
-        //mapManager.LoadAndBuildMap();
-
-        //GenerateTestPlayers();
-        
+        if (gameManager != null && gameManager.useNetworkMode)
+            return;
 
         int[] startNodes = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
 
         gameManager.SetPlayerPositions(startNodes);
 
         gameManager.ForceStartGame();
-
-        //gameManager.BeginTurn();  // ݭnTO GameManager  BeginTurn O public
-
     }
 
     void GenerateTestPlayers()
