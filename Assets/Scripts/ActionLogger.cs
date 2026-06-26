@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 
 public enum ActionType
@@ -17,6 +18,13 @@ public class ActionRecord
     public ActionType action;
     public string result;
     public bool isShared;
+    public ShareScope shareScope;
+}
+
+[System.Serializable]
+public class ActionLogExport
+{
+    public List<ActionRecord> records = new List<ActionRecord>();
 }
 
 public class ActionLogger : MonoBehaviour
@@ -33,7 +41,8 @@ public class ActionLogger : MonoBehaviour
             Destroy(gameObject);
     }
 
-    public void Log(PlayerData player, int round, int nodeId, string actionName, string result, bool isShared)
+    public void Log(PlayerData player, int round, int nodeId, string actionName, string result, bool isShared,
+        ShareScope scope = ShareScope.Secret)
     {
         ActionType action = ActionType.Move;
         if (actionName == "Investigate") action = ActionType.Investigate;
@@ -47,20 +56,23 @@ public class ActionLogger : MonoBehaviour
             nodeId = nodeId,
             action = action,
             result = result,
-            isShared = isShared
+            isShared = isShared,
+            shareScope = scope
         };
 
         records.Add(record);
-        Debug.Log($"[Log] {record.playerName} ({record.role}) - Round {record.round} - Node {record.nodeId} - {record.action} - Result: {record.result} - Shared: {record.isShared}");
+        Debug.Log($"[Log] {record.playerName} ({record.role}) - Round {record.round} - Node {record.nodeId} - {record.action} - Result: {record.result} - Share: {record.shareScope}");
     }
 
-    public List<ActionRecord> GetRecords()
-    {
-        return records;
-    }
+    public List<ActionRecord> GetRecords() => records;
 
-    public void ClearRecords()
+    public void ClearRecords() => records.Clear();
+
+    public void ExportToFile(string fileName = "action_replay.json")
     {
-        records.Clear();
+        var export = new ActionLogExport { records = new List<ActionRecord>(records) };
+        string path = Path.Combine(Application.persistentDataPath, fileName);
+        File.WriteAllText(path, JsonUtility.ToJson(export, true));
+        Debug.Log($"[Log] Replay exported to {path}");
     }
 }

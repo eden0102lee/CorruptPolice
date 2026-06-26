@@ -1,17 +1,85 @@
-// ©Ð¶¡»Pª±®a°t¸mºÞ²z
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class RoomManager : MonoBehaviour
+public enum RoomState
 {
-    public int maxPlayers;
-    public int maxRounds;
-    public int treasureGoal;
-    //public List<PlayerData> players;
-    public MapNodeData selectedMap;
-
-    public void CreateRoom(int playerCount, int roundLimit, int treasureTarget) { }
-    public void AssignRoles() { }
-    public void StartGame() { }
+    Lobby,
+    InGame,
+    Finished
 }
 
+/// <summary>
+/// ï¿½Ð¶ï¿½ï¿½yï¿½{ï¿½]ï¿½ï¿½ï¿½aï¿½ï¿½ï¿½^ï¿½Gï¿½Ø¥ß©Ð¶ï¿½ï¿½Bï¿½]ï¿½wï¿½Bï¿½[ï¿½Jï¿½Bï¿½}ï¿½lï¿½Cï¿½ï¿½ï¿½C
+/// ï¿½sï¿½uï¿½Pï¿½Bï¿½wï¿½dï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Xï¿½Rï¿½C
+/// </summary>
+public class RoomManager : MonoBehaviour
+{
+    public static RoomManager Instance;
+
+    public GameConfig config = GameConfig.Default;
+    public string roomCode;
+    public RoomState State { get; private set; } = RoomState.Lobby;
+    public bool IsHost { get; private set; } = true;
+
+    public event Action OnGameStarted;
+
+    private readonly List<string> joinedPlayers = new List<string>();
+    private readonly List<string> spectators = new List<string>();
+
+    private void Awake()
+    {
+        if (Instance == null) Instance = this;
+        else Destroy(gameObject);
+
+        roomCode = GenerateRoomCode();
+    }
+
+    string GenerateRoomCode()
+    {
+        return UnityEngine.Random.Range(100000, 999999).ToString();
+    }
+
+    public void UpdateConfig(GameConfig newConfig)
+    {
+        config = newConfig;
+    }
+
+    public bool TryJoin(string playerName, int currentPlayerCount)
+    {
+        if (State != RoomState.Lobby) return false;
+
+        if (currentPlayerCount < config.maxPlayers)
+        {
+            if (!joinedPlayers.Contains(playerName))
+                joinedPlayers.Add(playerName);
+            return true;
+        }
+
+        if (!spectators.Contains(playerName))
+            spectators.Add(playerName);
+        return false;
+    }
+
+    public bool CanStartGame(int currentPlayerCount)
+    {
+        return currentPlayerCount >= config.minPlayers;
+    }
+
+    public void StartGame()
+    {
+        if (State != RoomState.Lobby) return;
+        State = RoomState.InGame;
+        OnGameStarted?.Invoke();
+
+        if (UIController.Instance != null)
+            UIController.Instance.ShowMessage($"ï¿½Ð¶ï¿½ {roomCode} ï¿½Cï¿½ï¿½ï¿½}ï¿½l");
+    }
+
+    public void EndGame()
+    {
+        State = RoomState.Finished;
+    }
+
+    public IReadOnlyList<string> GetSpectators() => spectators;
+}

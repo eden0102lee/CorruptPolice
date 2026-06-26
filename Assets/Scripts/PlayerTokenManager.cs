@@ -105,8 +105,19 @@ public class PlayerTokenManager : MonoBehaviour
     public void HideToken(PlayerData player)
     {
         if (tokens.TryGetValue(player, out GameObject token))
-        {
             token.SetActive(false);
+    }
+
+    public void RefreshAllVisibility(PlayerData localViewer = null)
+    {
+        if (localViewer == null && GameManager.Instance != null && GameManager.Instance.GetAllPlayers().Count > 0)
+            localViewer = GameManager.Instance.GetAllPlayers()[0];
+
+        foreach (var pair in tokens)
+        {
+            bool visible = localViewer == null || RoleKnowledgeService.CanSeePlayerToken(localViewer, pair.Key);
+            if (pair.Value != null)
+                pair.Value.SetActive(visible && !pair.Key.isArrested);
         }
     }
 }

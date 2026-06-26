@@ -38,7 +38,7 @@ public class MapManager : MonoBehaviour
     [Tooltip("Automatically build map on Start")] public bool autoBuildOnStart = true;
 
     [Header("Treasure Settings")]
-    [Tooltip("Number of treasures placed in each game")] public int treasureCount = 20;
+    [Tooltip("Number of treasures placed in each game")] public int treasureCount = 28;
 
     private TreasureLog treasureLog = new TreasureLog();
     private string treasureLogPath;
@@ -205,9 +205,13 @@ public class MapManager : MonoBehaviour
                     else
                         piece.transform.position = rect.position;
                     treasurePieces[node.id] = piece;
+                    piece.SetActive(false);
                 }
             }
         }
+
+        if (GameManager.Instance != null && GameManager.Instance.GetAllPlayers().Count > 0)
+            RefreshTreasureVisibility(GameManager.Instance.GetAllPlayers()[0]);
     }
 
     public bool AreNodesConnected(int fromId, int toId)
@@ -335,6 +339,57 @@ public class MapManager : MonoBehaviour
         return treasures.Contains(nodeId);
     }
 
+    public int GetRemainingTreasureCount() => treasures.Count;
+
+    public List<int> GetVisibleTreasureNodes(PlayerData viewer)
+    {
+        var list = new List<int>();
+        if (!RoleKnowledgeService.CanSeeTreasures(viewer))
+            return list;
+
+        list.AddRange(treasures);
+        return list;
+    }
+
+    public void RefreshTreasureVisibility(PlayerData viewer)
+    {
+        bool canSee = viewer != null && RoleKnowledgeService.CanSeeTreasures(viewer);
+        foreach (var pair in treasurePieces)
+        {
+            if (pair.Value != null)
+                pair.Value.SetActive(canSee && treasures.Contains(pair.Key));
+        }
+    }
+
+    public void ReturnTreasuresToMap(int count, string reasonPlayer)
+    {
+        if (count <= 0) return;
+
+        var candidates = new List<int>();
+        foreach (var ui in GetAllNodeUIs())
+        {
+            if (!HasTreasure(ui.nodeId))
+                candidates.Add(ui.nodeId);
+        }
+
+        for (int i = 0; i < count && candidates.Count > 0; i++)
+        {
+            int idx = Random.Range(0, candidates.Count);
+            int nodeId = candidates[idx];
+            candidates.RemoveAt(idx);
+            SetTreasure(nodeId, true);
+        }
+
+        Debug.Log($"[Map] Returned {count} treasures from {reasonPlayer}");
+
+        if (GameManager.Instance != null)
+        {
+            var thieves = GameManager.Instance.GetThieves();
+            if (thieves.Count > 0)
+                RefreshTreasureVisibility(thieves[0]);
+        }
+    }
+
     public void AddFootprint(int nodeId, string thiefName)
     {
         if (!footprints.ContainsKey(nodeId)) footprints[nodeId] = new List<string>();
@@ -344,6 +399,57 @@ public class MapManager : MonoBehaviour
     public bool HasFootprint(int nodeId)
     {
         return footprints.ContainsKey(nodeId) && footprints[nodeId].Count > 0;
+    }
+
+    public List<int> GetNeighborIds(int nodeId)
+    {
+        var data = GetNodeData(nodeId);
+        return data != null ? new List<int>(data.neighbors) : new List<int>();
+    }
+
+    public List<int> GetNodesWithFootprints()
+    {
+        var nodes = new List<int>();
+        foreach (var pair in footprints)
+        {
+            if (pair.Value.Count > 0)
+                nodes.Add(pair.Key);
+        }
+        return nodes;
+    }
+
+    public int GetShortestDistance(int fromId, int toId)
+    {
+        return GetGraphDistance(nodeDataDict, fromId, toId);
+    }
+
+    public int GetNextStepToward(int fromId, int toId)
+    {
+        if (fromId == toId) return fromId;
+
+        var visited = new HashSet<int> { fromId };
+        var parent = new Dictionary<int, int>();
+        var q = new Queue<int>();
+        q.Enqueue(fromId);
+
+        while (q.Count > 0)
+        {
+            int id = q.Dequeue();
+            foreach (var n in GetNeighborIds(id))
+            {
+                if (!visited.Add(n)) continue;
+                parent[n] = id;
+                if (n == toId)
+                {
+                    int step = toId;
+                    while (parent[step] != fromId)
+                        step = parent[step];
+                    return step;
+                }
+                q.Enqueue(n);
+            }
+        }
+        return -1;
     }
 
     private int GetGraphDistance(Dictionary<int, MapNodeData> dict, int startId, int endId)

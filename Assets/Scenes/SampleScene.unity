@@ -6866,6 +6866,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: GameManager
       objectReference: {fileID: 0}
+    - target: {fileID: 6572753626031551860, guid: 83ea7939b69113b489668dc99f0dbac8, type: 3}
+      propertyPath: maxRounds
+      value: 999
+      objectReference: {fileID: 0}
+    - target: {fileID: 6572753626031551860, guid: 83ea7939b69113b489668dc99f0dbac8, type: 3}
+      propertyPath: treasureGoal
+      value: 8
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

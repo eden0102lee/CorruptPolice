@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using System.Linq;
 
 /// <summary>
 /// 控制玩家操作，包括移動、調查與逮捕行動的選擇與執行
@@ -10,18 +9,16 @@ public class PlayerInputController : MonoBehaviour
 {
     public static PlayerInputController Instance;
 
-    public GameObject actionPanel;         // 行動選單面板
-    public Button moveButton;              // 小偷移動按鈕
-    public Button investigateButton;       // 警察調查按鈕
-    public Button arrestButton;            // 警察逮捕按鈕
-    public Button confirmButton;           // 確認行動按鈕
+    public GameObject actionPanel;
+    public Button moveButton;
+    public Button investigateButton;
+    public Button arrestButton;
+    public Button confirmButton;
 
-    private PlayerData currentPlayer;      // 當前輪到的玩家
-    private int selectedNodeId = -1;       // 玩家選擇的目標節點
-    private int originalNodeId = -1;       // 玩家起始節點
-
-    private bool placementMode = false;    // 是否處於初始放置階段
-    private ActionType currentAction;      // 當前選擇的行動類型
+    private PlayerData currentPlayer;
+    private int selectedNodeId = -1;
+    private bool placementMode;
+    private ActionType currentAction;
 
     void Awake()
     {
@@ -47,39 +44,37 @@ public class PlayerInputController : MonoBehaviour
             actionPanel.SetActive(false);
     }
 
-    /// <summary>
-    /// 設定當前控制的玩家並初始化其狀態
-    /// </summary>
     public void SetCurrentPlayer(PlayerData player)
     {
         currentPlayer = player;
         if (GameManager.Instance != null)
-            currentPlayer.remainingSteps = GameManager.Instance.stepsPerTurn;
+        {
+            currentPlayer.remainingSteps = player.role == PlayerRole.Thief
+                ? GameManager.Instance.Config.thiefStepsPerTurn
+                : GameManager.Instance.Config.policeStepsPerTurn;
+        }
 
-        originalNodeId = player.currentNodeId;
         selectedNodeId = -1;
-
         HighlightCurrentNode();
 
         int round = GameManager.Instance != null ? GameManager.Instance.CurrentRound : -1;
         Debug.Log($"[Turn] Round {round} - {currentPlayer.playerName} ({currentPlayer.role}) begins with {currentPlayer.remainingSteps} steps");
+
+        if (GameAgentController.Instance != null)
+            GameAgentController.Instance.OnTurnStarted(player, false);
     }
 
-    /// <summary>
-    /// 啟動初始放置模式，等待玩家選擇起始節點
-    /// </summary>
     public void StartPlacement(PlayerData player)
     {
         placementMode = true;
         currentPlayer = player;
         selectedNodeId = -1;
-        originalNodeId = -1;
         Debug.Log($"Select start position for {player.playerName}");
+
+        if (GameAgentController.Instance != null)
+            GameAgentController.Instance.OnTurnStarted(player, true);
     }
 
-    /// <summary>
-    /// 高亮目前所在的節點
-    /// </summary>
     void HighlightCurrentNode()
     {
         if (MapManager.Instance == null || currentPlayer == null)
@@ -92,9 +87,6 @@ public class PlayerInputController : MonoBehaviour
         if (currentUI != null) currentUI.Highlight();
     }
 
-    /// <summary>
-    /// 處理節點點擊事件，包含移動與初始放置
-    /// </summary>
     public void OnNodeClicked(int nodeId)
     {
         if (MapManager.Instance == null)
@@ -104,14 +96,20 @@ public class PlayerInputController : MonoBehaviour
         {
             if (currentPlayer == null) return;
 
+            if (GameStartManager.Instance != null)
+            {
+                GameStartManager.Instance.ConfirmPlacement(currentPlayer, nodeId);
+                placementMode = false;
+                MapManager.Instance.GetNodeUI(nodeId)?.Highlight();
+                return;
+            }
+
             currentPlayer.currentNodeId = nodeId;
             if (PlayerTokenManager.Instance != null)
                 PlayerTokenManager.Instance.UpdateTokenPosition(currentPlayer);
-
-            MapManager.Instance.GetNodeUI(nodeId)?.Highlight();
             placementMode = false;
             if (GameManager.Instance != null)
-                GameManager.Instance.ConfirmPlacement();
+                GameManager.Instance.OnPlacementComplete();
             return;
         }
 
@@ -131,12 +129,12 @@ public class PlayerInputController : MonoBehaviour
         selectedNodeId = nodeId;
         MapManager.Instance.GetNodeUI(nodeId)?.Highlight();
 
-        ShowActionPanel();
+        if (currentPlayer.role == PlayerRole.Thief)
+            PerformAction(ActionType.Move, nodeId);
+        else
+            ShowActionPanel();
     }
 
-    /// <summary>
-    /// 顯示行動選單，依照角色開啟對應選項
-    /// </summary>
     void ShowActionPanel()
     {
         if (actionPanel == null || currentPlayer == null)
@@ -144,97 +142,122 @@ public class PlayerInputController : MonoBehaviour
 
         actionPanel.SetActive(true);
         if (moveButton != null)
-            moveButton.gameObject.SetActive(currentPlayer.role == PlayerRole.Thief);
+            moveButton.gameObject.SetActive(false);
         if (investigateButton != null)
-            investigateButton.gameObject.SetActive(currentPlayer.role != PlayerRole.Thief);
+            investigateButton.gameObject.SetActive(true);
         if (arrestButton != null)
-            arrestButton.gameObject.SetActive(currentPlayer.role != PlayerRole.Thief);
+            arrestButton.gameObject.SetActive(true);
     }
 
-    /// <summary>
-    /// 設定當前選擇的行動
-    /// </summary>
     void SetActionType(ActionType action)
     {
         currentAction = action;
     }
 
-    /// <summary>
-    /// 執行目前選擇的行動邏輯，並紀錄結果
-    /// </summary>
     void OnConfirmAction()
     {
         if (selectedNodeId == -1 || currentPlayer == null) return;
+        PerformAction(currentAction, selectedNodeId);
+    }
 
-        currentPlayer.currentNodeId = selectedNodeId;
+    public bool PerformAction(ActionType action, int targetNodeId)
+    {
+        if (currentPlayer == null || MapManager.Instance == null)
+            return false;
+
+        if (!MapManager.Instance.AreNodesConnected(currentPlayer.currentNodeId, targetNodeId))
+            return false;
+
+        currentAction = action;
+        selectedNodeId = targetNodeId;
+
+        currentPlayer.currentNodeId = targetNodeId;
         if (PlayerTokenManager.Instance != null)
             PlayerTokenManager.Instance.UpdateTokenPosition(currentPlayer);
 
         currentPlayer.remainingSteps--;
 
         int round = GameManager.Instance != null ? GameManager.Instance.CurrentRound : -1;
-        Debug.Log($"[Action] Round {round} - {currentPlayer.playerName} performed {currentAction} on node {selectedNodeId}. Remaining steps: {currentPlayer.remainingSteps}");
+        Debug.Log($"[Action] Round {round} - {currentPlayer.playerName} performed {action} on node {targetNodeId}. Remaining steps: {currentPlayer.remainingSteps}");
 
-        string result = string.Empty;
-        bool isShared = true;
-        if (currentAction == ActionType.Move && currentPlayer.role == PlayerRole.Thief)
+        if (action == ActionType.Move && currentPlayer.role == PlayerRole.Thief)
+            HandleThiefMove(targetNodeId);
+        else if (action == ActionType.Investigate && currentPlayer.role != PlayerRole.Thief)
+            HandleInvestigate(targetNodeId);
+        else if (action == ActionType.Arrest && currentPlayer.role != PlayerRole.Thief)
+            HandleArrest(targetNodeId);
+
+        if (currentPlayer.remainingSteps <= 0 && GameManager.Instance != null)
+            GameManager.Instance.OnPlayerTurnComplete(currentPlayer);
+
+        if (actionPanel != null)
+            actionPanel.SetActive(false);
+        selectedNodeId = -1;
+        return true;
+    }
+
+    void HandleThiefMove(int targetNodeId)
+    {
+        MapManager.Instance.AddFootprint(targetNodeId, currentPlayer.playerName);
+        bool collected = MapManager.Instance.CollectTreasure(targetNodeId);
+        string result = collected ? "Found treasure" : "No treasure";
+
+        if (collected && GameManager.Instance != null)
+            GameManager.Instance.RecordTreasureForThief(currentPlayer);
+
+        if (ActionLogger.Instance != null && GameManager.Instance != null)
         {
-            MapManager.Instance.AddFootprint(selectedNodeId, currentPlayer.playerName);
-            bool collected = MapManager.Instance.CollectTreasure(selectedNodeId);
-            if (collected)
-            {
-                result = "Found treasure";
-                if (GameManager.Instance != null)
-                    GameManager.Instance.RecordTreasure();
-            }
-            else
-            {
-                result = "No treasure";
-            }
+            ActionLogger.Instance.Log(
+                currentPlayer,
+                GameManager.Instance.CurrentRound,
+                targetNodeId,
+                ActionType.Move.ToString(),
+                result,
+                true,
+                ShareScope.Public);
         }
-        else if (currentAction == ActionType.Investigate && currentPlayer.role != PlayerRole.Thief)
+    }
+
+    void HandleInvestigate(int targetNodeId)
+    {
+        if (InvestigationSystem.Instance == null) return;
+
+        var result = InvestigationSystem.Instance.Investigate(currentPlayer, targetNodeId);
+        if (UIController.Instance != null)
+            UIController.Instance.PromptInvestigationShare(result);
+        else
+            InvestigationSystem.Instance.ShareResult(result, ShareScope.Team);
+    }
+
+    void HandleArrest(int targetNodeId)
+    {
+        var thief = GameManager.Instance.GetThiefAt(targetNodeId);
+        string result;
+
+        if (currentPlayer.role == PlayerRole.CorruptPolice)
         {
-            var hasClue = MapManager.Instance.HasFootprint(selectedNodeId);
-            result = hasClue ? "Found clue" : "No clue";
-            isShared = false;
+            result = "Arrest failed (corrupt police)";
         }
-        else if (currentAction == ActionType.Arrest && currentPlayer.role != PlayerRole.Thief)
+        else if (thief != null)
         {
-            var thief = GameManager.Instance.GetThiefAt(selectedNodeId);
-            if (thief != null)
-            {
-                GameManager.Instance.ArrestThief(thief);
-                result = $"Arrested ({thief.playerName})";
-            }
-            else
-            {
-                result = "No thief";
-            }
-            isShared = true;
+            GameManager.Instance.ArrestThief(thief, currentPlayer);
+            result = $"Arrested ({thief.playerName})";
         }
+        else
+        {
+            result = "No thief";
+        }
+
         if (ActionLogger.Instance != null)
         {
             ActionLogger.Instance.Log(
                 currentPlayer,
                 GameManager.Instance.CurrentRound,
-                selectedNodeId,
-                currentAction.ToString(),
+                targetNodeId,
+                ActionType.Arrest.ToString(),
                 result,
-                isShared
-            );
+                true,
+                ShareScope.Public);
         }
-        else
-        {
-            Debug.LogWarning("ActionLogger instance missing - skipping log entry.");
-        }
-
-        if (currentPlayer.remainingSteps <= 0 && GameManager.Instance != null)
-        {
-            GameManager.Instance.NextPlayerTurn();
-        }
-
-        if (actionPanel != null)
-            actionPanel.SetActive(false);
-        selectedNodeId = -1;
     }
 }

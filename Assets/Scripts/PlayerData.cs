@@ -13,6 +13,9 @@ public class PlayerData
     public int currentNodeId;
     public int remainingSteps;
     public bool isArrested;
+    public bool isSpectator;
+    public int treasureCount;
+    public bool hasActedThisTeamTurn;
 
     public PlayerData(string name, PlayerRole role, int teamIndex)
     {
@@ -22,11 +25,18 @@ public class PlayerData
         this.currentNodeId = -1;
         this.remainingSteps = 0;
         this.isArrested = false;
+        this.isSpectator = false;
+        this.treasureCount = 0;
+        this.hasActedThisTeamTurn = false;
     }
 
     public void MoveTo(int nodeId)
     {
         currentNodeId = nodeId;
     }
-}
 
+    public void ResetTeamTurnFlag()
+    {
+        hasActedThisTeamTurn = false;
+    }
+}
